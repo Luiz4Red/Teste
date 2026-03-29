@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechPulse — Agregador RSS Tech BR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Fira+Code:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --ink:       #0e0e10;
+  --paper:     #f5f0e8;
+  --paper2:    #ede8dc;
+  --paper3:    #e3ddd0;
+  --rule:      #ccc5b4;
+  --rule2:     #b8b0a0;
+  --red:       #c0392b;
+  --red-dim:   #8b2020;
+  --blue:      #1a3a6b;
+  --blue-dim:  #2c5282;
+  --gold:      #b7860b;
+  --text:      #1c1c1e;
+  --text-mid:  #4a4540;
+  --text-dim:  #7a756e;
+  --text-muted:#a09890;
+  --shadow:    0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 6px 24px rgba(0,0,0,0.12);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--text);
+  font-family: 'Lora', Georgia, serif;
+  min-height: 100vh;
+}
+
+/* ─── NOISE TEXTURE ──────────────────────────────────── */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+  opacity:.5;
+}
+
+/* ─── MASTHEAD ───────────────────────────────────────── */
+.masthead {
+  background: var(--ink);
+  color: var(--paper);
+  text-align: center;
+  padding: 1.5rem 2rem 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.masthead::after {
+  content:'';
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:3px;
+  background: repeating-linear-gradient(90deg, var(--red) 0, var(--red) 12px, transparent 12px, transparent 16px);
+}
+
+.masthead-eyebrow {
+  font-family:'Fira Code', monospace;
+  font-size:.65rem;
+  letter-spacing:.2em;
+  color: var(--text-muted);
+  text-transform:uppercase;
+  margin-bottom:.6rem;
+}
+
+.masthead h1 {
+  font-family:'Syne', sans-serif;
+  font-weight:800;
+  font-size:clamp(2.2rem, 5vw, 3.8rem);
+  letter-spacing:-.03em;
+  line-height:1;
+}
+
+.masthead h1 em {
+  font-style:normal;
+  color: var(--red);
+}
+
+.masthead-tagline {
+  font-family:'Lora', serif;
+  font-style:italic;
+  font-size:.875rem;
+  color: var(--text-dim);
+  margin-top:.5rem;
+}
+
+.masthead-date {
+  font-family:'Fira Code', monospace;
+  font-size:.65rem;
+  color: var(--text-muted);
+  margin-top:.8rem;
+  letter-spacing:.1em;
+}
+
+/* ─── COPYRIGHT NOTICE STRIP ─────────────────────────── */
+.copyright-strip {
+  background: #2a2420;
+  color: #8a827a;
+  font-family:'Fira Code', monospace;
+  font-size:.6rem;
+  text-align:center;
+  padding:.4rem 2rem;
+  line-height:1.6;
+  letter-spacing:.02em;
+}
+
+.copyright-strip a { color:#a09890; text-decoration:underline; }
+
+/* ─── TICKER ─────────────────────────────────────────── */
+.ticker-wrap {
+  background: var(--red);
+  color: #fff;
+  overflow:hidden;
+  height:30px;
+  display:flex;
+  align-items:center;
+  position:relative;
+  z-index:10;
+}
+
+.ticker-label {
+  background: var(--ink);
+  color: var(--red);
+  font-family:'Fira Code', monospace;
+  font-size:.65rem;
+  font-weight:600;
+  letter-spacing:.1em;
+  padding:0 1rem;
+  height:100%;
+  display:flex;
+  align-items:center;
+  flex-shrink:0;
+  text-transform:uppercase;
+}
+
+.ticker-track { overflow:hidden; flex:1; }
+
+.ticker-inner {
+  display:inline-flex;
+  white-space:nowrap;
+  animation: ticker-scroll 60s linear infinite;
+  will-change:transform;
+}
+
+.ticker-item {
+  font-family:'Fira Code', monospace;
+  font-size:.65rem;
+  font-weight:500;
+  padding:0 2rem;
+  opacity:.95;
+}
+
+.ticker-item .sep { margin:0 .5rem; opacity:.5; }
+
+@keyframes ticker-scroll {
+  from { transform:translateX(0); }
+  to   { transform:translateX(-50%); }
+}
+
+/* ─── TOOLBAR ────────────────────────────────────────── */
+.toolbar {
+  position:sticky;
+  top:0;
+  z-index:50;
+  background: rgba(245,240,232,.97);
+  backdrop-filter:blur(12px);
+  border-bottom:2px solid var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.toolbar-inner {
+  max-width:1440px;
+  margin:0 auto;
+  padding:.7rem 2rem;
+  display:flex;
+  gap:1rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+/* Search */
+.search-box {
+  flex:1;
+  min-width:200px;
+  max-width:380px;
+  position:relative;
+}
+
+.search-box input {
+  width:100%;
+  background: var(--paper2);
+  border:1.5px solid var(--rule2);
+  border-radius:3px;
+  padding:.45rem .9rem .45rem 2.2rem;
+  font-family:'Lora', serif;
+  font-size:.82rem;
+  color: var(--text);
+  outline:none;
+  transition:border-color .2s;
+}
+
+.search-box input:focus { border-color: var(--ink); }
+.search-box input::placeholder { color: var(--text-muted); }
+
+.search-icon {
+  position:absolute;
+  left:.65rem;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:.85rem;
+  color: var(--text-muted);
+  pointer-events:none;
+}
+
+.search-box button {
+  position:absolute;
+  right:.35rem;
+  top:50%;
+  transform:translateY(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  border:none;
+  border-radius:2px;
+  padding:.2rem .55rem;
+  font-family:'Fira Code', monospace;
+  font-size:.6rem;
+  font-weight:600;
+  cursor:pointer;
+  letter-spacing:.05em;
+  transition:background .2s;
+}
+
+.search-box button:hover { background: var(--red); }
+
+/* Divider */
+.toolbar-div {
+  width:1px;
+  height:28px;
+  background: var(--rule2);
+  flex-shrink:0;
+}
+
+/* Status */
+.toolbar-status {
+  font-family:'Fira Code', monospace;
+  font-size:.62rem;
+  color: var(--text-dim);
+  white-space:nowrap;
+}
+
+.toolbar-status strong { color: var(--text); }
+
+/* Refresh */
+.refresh-btn {
+  background:transparent;
+  border:1.5px solid var(--rule2);
+  border-radius:3px;
+  color: var(--text-mid);
+  font-family:'Fira Code', monospace;
+  font-size:.62rem;
+  padding:.3rem .8rem;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  transition:all .2s;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+
+.refresh-btn:hover { border-color:var(--ink); color:var(--ink); }
+.refresh-btn.spinning .spin-icon { animation: spin .7s linear infinite; display:inline-block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ─── CATEGORY BAR ────────────────────────────────────── */
+.cat-bar {
+  background: var(--paper2);
+  border-bottom:1px solid var(--rule);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.cat-bar::-webkit-scrollbar { display:none; }
+
+.cat-inner {
+  max-width:1440px;
+  margin:0 auto;
+  padding:.55rem 2rem;
+  display:flex;
+  gap:.4rem;
+  align-items:center;
+}
+
+.cat-label {
+  font-family:'Fira Code', monospace;
+  font-size:.58rem;
+  color: var(--text-muted);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  margin-right:.4rem;
+  flex-shrink:0;
+}
+
+.cat-btn {
+  padding:.28rem .75rem;
+  border:1.5px solid var(--rule2);
+  border-radius:2px;
+  background:transparent;
+  color: var(--text-mid);
+  font-family:'Fira Code', monospace;
+  font-size:.68rem;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .18s;
+  white-space:nowrap;
+  flex-shrink:0;
+  letter-spacing:.02em;
+}
+
+.cat-btn:hover { border-color:var(--ink); color:var(--ink); }
+
+.cat-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* ─── SOURCE BAR ──────────────────────────────────────── */
+.src-bar {
+  background: var(--paper3);
+  border-bottom:1px solid var(--rule);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.src-bar::-webkit-scrollbar { display:none; }
+
+.src-inner {
+  max-width:1440px;
+  margin:0 auto;
+  padding:.4rem 2rem;
+  display:flex;
+  gap:.35rem;
+  align-items:center;
+}
+
+.src-btn {
+  padding:.2rem .65rem;
+  border:1px solid var(--rule);
+  border-radius:20px;
+  background:transparent;
+  color: var(--text-muted);
+  font-family:'Fira Code', monospace;
+  font-size:.6rem;
+  cursor:pointer;
+  transition:all .18s;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+
+.src-btn:hover { border-color:var(--rule2); color:var(--text-mid); }
+.src-btn.active { border-color:var(--red); color:var(--red); background:rgba(192,57,43,.06); }
+.src-btn.src-unstable { color: var(--text-muted); opacity: .6; font-style: italic; }
+
+/* ─── MAIN ───────────────────────────────────────────── */
+main {
+  position:relative;
+  z-index:1;
+  max-width:1440px;
+  margin:0 auto;
+  padding:2rem 2rem 5rem;
+}
+
+/* ─── NEWS GRID ──────────────────────────────────────── */
+.news-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(330px, 1fr));
+  gap:1.5rem;
+}
+
+/* ─── NEWS CARD ──────────────────────────────────────── */
+.news-card {
+  background: #faf7f2;
+  border:1.5px solid var(--rule);
+  border-radius:2px;
+  display:flex;
+  flex-direction:column;
+  transition:all .2s;
+  animation:fadeUp .35s ease both;
+  position:relative;
+  overflow:hidden;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.news-card::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:3px;
+  background: var(--red);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .25s ease;
+}
+
+.news-card:hover {
+  border-color:var(--rule2);
+  box-shadow: var(--shadow-lg);
+  transform:translateY(-2px);
+}
+
+.news-card:hover::before { transform:scaleX(1); }
+
+.card-img-wrap {
+  overflow:hidden;
+  height:160px;
+  background: var(--paper3);
+  position:relative;
+}
+
+.card-img-wrap img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .4s ease;
+  display:block;
+}
+
+.news-card:hover .card-img-wrap img { transform:scale(1.03); }
+
+.card-img-placeholder {
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.5rem;
+  opacity:.25;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--paper3),
+    var(--paper3) 6px,
+    var(--paper2) 6px,
+    var(--paper2) 12px
+  );
+}
+
+.card-body { padding:1rem 1.1rem; flex:1; display:flex; flex-direction:column; gap:.5rem; }
+
+.card-meta {
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  flex-wrap:wrap;
+}
+
+/* Source badge */
+.badge-source {
+  font-family:'Fira Code', monospace;
+  font-size:.58rem;
+  font-weight:600;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:.15rem .5rem;
+  border-radius:1px;
+  color:#fff;
+  flex-shrink:0;
+}
+
+.badge-cat {
+  font-family:'Fira Code', monospace;
+  font-size:.58rem;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  padding:.15rem .5rem;
+  border:1px solid var(--rule2);
+  border-radius:1px;
+  color: var(--text-mid);
+}
+
+.badge-time {
+  font-family:'Fira Code', monospace;
+  font-size:.58rem;
+  color: var(--text-muted);
+  margin-left:auto;
+}
+
+.card-title {
+  font-family:'Syne', sans-serif;
+  font-weight:700;
+  font-size:.93rem;
+  line-height:1.38;
+  color: var(--text);
+  transition:color .15s;
+}
+
+.news-card:hover .card-title { color: var(--red); }
+
+.card-desc {
+  font-size:.8rem;
+  color: var(--text-mid);
+  line-height:1.6;
+  font-style:italic;
+  flex:1;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+/* Card footer */
+.card-footer {
+  padding:.65rem 1.1rem;
+  border-top:1px dashed var(--rule);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.5rem;
+}
+
+.card-source-credit {
+  font-family:'Fira Code', monospace;
+  font-size:.58rem;
+  color: var(--text-muted);
+}
+
+.card-source-credit a {
+  color: var(--blue-dim);
+  text-decoration:none;
+  font-weight:500;
+}
+
+.card-source-credit a:hover { text-decoration:underline; }
+
+.read-link {
+  font-family:'Fira Code', monospace;
+  font-size:.62rem;
+  font-weight:600;
+  color: var(--red);
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:.3rem;
+  transition:gap .18s;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+
+.read-link:hover { gap:.5rem; }
+
+/* ─── LOADING SKELETONS ──────────────────────────────── */
+.skel-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(330px, 1fr));
+  gap:1.5rem;
+}
+
+.skel-card {
+  background:#faf7f2;
+  border:1.5px solid var(--rule);
+  border-radius:2px;
+  overflow:hidden;
+}
+
+.skel-img { height:160px; }
+
+.skel-body { padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.7rem; }
+
+.skel {
+  background:linear-gradient(90deg, var(--paper2) 25%, var(--paper3) 50%, var(--paper2) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:2px;
+}
+
+@keyframes shimmer {
+  0%   { background-position:200% 0; }
+  100% { background-position:-200% 0; }
+}
+
+/* ─── EMPTY STATE ────────────────────────────────────── */
+.empty-state {
+  grid-column:1/-1;
+  text-align:center;
+  padding:4rem 2rem;
+}
+
+.empty-icon { font-size:3rem; opacity:.3; margin-bottom:1rem; }
+
+.empty-title {
+  font-family:'Syne', sans-serif;
+  font-weight:700;
+  font-size:1.1rem;
+  color: var(--text-mid);
+  margin-bottom:.4rem;
+}
+
+.empty-sub { font-size:.82rem; color: var(--text-muted); font-style:italic; }
+
+/* ─── PAGINATION ─────────────────────────────────────── */
+.pagination {
+  display:flex;
+  justify-content:center;
+  gap:.4rem;
+  margin-top:2.5rem;
+  flex-wrap:wrap;
+}
+
+.pg-btn {
+  min-width:34px;
+  height:34px;
+  padding:0 .6rem;
+  border:1.5px solid var(--rule2);
+  border-radius:2px;
+  background:transparent;
+  color: var(--text-mid);
+  font-family:'Fira Code', monospace;
+  font-size:.72rem;
+  cursor:pointer;
+  transition:all .18s;
+}
+
+.pg-btn:hover { border-color:var(--ink); color:var(--ink); }
+
+.pg-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  font-weight:600;
+}
+
+/* ─── SCROLL TOP ─────────────────────────────────────── */
+.scroll-top {
+  position:fixed;
+  bottom:2rem;
+  right:2rem;
+  width:40px;
+  height:40px;
+  background: var(--ink);
+  color: var(--paper);
+  border:none;
+  border-radius:2px;
+  font-size:.85rem;
+  cursor:pointer;
+  transition:all .2s;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99;
+  box-shadow: var(--shadow-lg);
+}
+
+.scroll-top:hover { background: var(--red); }
+.scroll-top.visible { display:flex; }
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: #6a6460;
+  padding:2rem;
+  text-align:center;
+  font-family:'Fira Code', monospace;
+  font-size:.62rem;
+  line-height:2;
+  position:relative;
+  z-index:1;
+}
+
+footer a { color:#8a827a; text-decoration:underline; }
+footer strong { color:#a09890; }
+
+/* ─── MODAL ──────────────────────────────────────────── */
+.modal-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(14,14,16,.75);
+  z-index:200;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:2rem;
+  backdrop-filter:blur(6px);
+}
+
+.modal-overlay.open { display:flex; }
+
+.modal {
+  background: #faf7f2;
+  border:2px solid var(--ink);
+  border-radius:3px;
+  max-width:640px;
+  width:100%;
+  max-height:85vh;
+  overflow-y:auto;
+  padding:2rem;
+  position:relative;
+  animation:fadeUp .25s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-close {
+  position:absolute;
+  top:.8rem;
+  right:.8rem;
+  background:transparent;
+  border:1.5px solid var(--rule2);
+  color: var(--text-mid);
+  width:28px;
+  height:28px;
+  border-radius:2px;
+  cursor:pointer;
+  font-family:'Fira Code', monospace;
+  font-size:.75rem;
+  transition:all .2s;
+}
+
+.modal-close:hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+.modal-src-row {
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:1rem;
+}
+
+.modal h2 {
+  font-family:'Syne', sans-serif;
+  font-weight:700;
+  font-size:1.15rem;
+  line-height:1.4;
+  color:var(--text);
+  margin-bottom:.8rem;
+  padding-right:1.5rem;
+}
+
+.modal-desc {
+  font-size:.875rem;
+  color: var(--text-mid);
+  line-height:1.75;
+  font-style:italic;
+  margin-bottom:1.2rem;
+  border-left:3px solid var(--rule2);
+  padding-left:.85rem;
+}
+
+.modal-attribution {
+  background: var(--paper3);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:.75rem 1rem;
+  font-family:'Fira Code', monospace;
+  font-size:.6rem;
+  color: var(--text-mid);
+  line-height:1.9;
+  margin-bottom:1rem;
+}
+
+.modal-attribution strong { color:var(--text); }
+
+.modal-cta {
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  background: var(--red);
+  color:#fff;
+  padding:.6rem 1.4rem;
+  border-radius:2px;
+  font-family:'Fira Code', monospace;
+  font-size:.72rem;
+  font-weight:600;
+  text-decoration:none;
+  letter-spacing:.04em;
+  transition:background .2s;
+}
+
+.modal-cta:hover { background: var(--red-dim); }
+
+/* ─── ERROR BANNER ───────────────────────────────────── */
+.error-banner {
+  background:#fff3cd;
+  border:1px solid #ffc107;
+  border-radius:2px;
+  padding:.6rem 1rem;
+  font-family:'Fira Code', monospace;
+  font-size:.65rem;
+  color:#7a5c00;
+  margin-bottom:1rem;
+  display:none;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width:768px) {
+  .toolbar-inner { gap:.6rem; }
+  .search-box { max-width:100%; }
+  main { padding:1rem 1rem 4rem; }
+  .news-grid, .skel-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-eyebrow">// agregador de notícias tech</div>
+  <h1>Tech<em>Pulse</em></h1>
+  <div class="masthead-tagline">Notícias de hoje, direto das maiores fontes tech do Brasil</div>
+  <div class="masthead-date" id="dateDisplay"></div>
+</div>
+
+<!-- COPYRIGHT STRIP -->
+<div class="copyright-strip">
+  ⚠ Este agregador exibe títulos, resumos e links para conteúdo de terceiros via RSS público.
+  Todo o conteúdo é propriedade de seus respectivos autores e publicações.
+  Ao clicar, você é redirecionado ao site original. Nenhum conteúdo é armazenado ou reproduzido integralmente aqui.
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">HOJE</div>
+  <div class="ticker-track">
+    <div class="ticker-inner" id="tickerInner">
+      <span class="ticker-item">Carregando manchetes… aguarde.</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Buscar título, produto, tema…" />
+      <button onclick="doSearch()">IR</button>
+    </div>
+    <div class="toolbar-div"></div>
+    <div class="toolbar-status" id="statusText">Carregando…</div>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadAllFeeds(true)">
+      <span class="spin-icon" id="spinIcon">↻</span> Atualizar
+    </button>
+  </div>
+</div>
+
+<!-- CATEGORY BAR -->
+<div class="cat-bar">
+  <div class="cat-inner">
+    <span class="cat-label">filtro //</span>
+    <button class="cat-btn active" onclick="setCat('todos',this)">Todos</button>
+    <button class="cat-btn" id="btnHoje" onclick="setCat('hoje',this)">🕐 Hoje</button>
+    <button class="cat-btn" onclick="setCat('celulares',this)">📱 Celulares</button>
+    <button class="cat-btn" onclick="setCat('pc',this)">🖥️ PC &amp; Hardware</button>
+    <button class="cat-btn" onclick="setCat('redes',this)">🌐 Redes &amp; Internet</button>
+    <button class="cat-btn" onclick="setCat('casa-inteligente',this)">🏠 Casa Inteligente</button>
+    <button class="cat-btn" onclick="setCat('games',this)">🎮 Games</button>
+    <button class="cat-btn" onclick="setCat('ia',this)">🤖 IA &amp; Software</button>
+    <button class="cat-btn" onclick="setCat('wearables',this)">⌚ Wearables</button>
+    <button class="cat-btn" onclick="setCat('segurança',this)">🔒 Segurança</button>
+  </div>
+</div>
+
+<!-- SOURCE BAR -->
+<div class="src-bar">
+  <div class="src-inner">
+    <button class="src-btn active" onclick="setSrc('todas',this)">Todas as fontes</button>
+    <button class="src-btn" onclick="setSrc('tecnoblog',this)">Tecnoblog</button>
+    <button class="src-btn" onclick="setSrc('tudocelular',this)">TudoCelular</button>
+    <button class="src-btn" onclick="setSrc('adrenaline',this)">Adrenaline</button>
+    <button class="src-btn" onclick="setSrc('clubedohardware',this)">Clube do Hardware</button>
+    <button class="src-btn" onclick="setSrc('teclab',this)">Teclab</button>
+    <button class="src-btn" onclick="setSrc('mundoconectado',this)">Mundo Conectado</button>
+    <button class="src-btn" onclick="setSrc('tecnoarthardware',this)">TecnoartHardware</button>
+    <button class="src-btn src-unstable" title="Feed instável — pode não carregar" onclick="setSrc('hardware',this)">Hardware.com.br ⚠</button>
+    <button class="src-btn src-unstable" title="Feed instável — pode não carregar" onclick="setSrc('prediointeligente',this)">Prédio Inteligente ⚠</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div id="errorBanner" class="error-banner"></div>
+
+  <div id="skeletonGrid" class="skel-grid">
+    <!-- 9 skeletons -->
+    <div class="skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel" style="height:12px;width:45%"></div><div class="skel" style="height:16px;width:90%"></div><div class="skel" style="height:16px;width:78%"></div><div class="skel" style="height:11px;width:100%"></div><div class="skel" style="height:11px;width:70%"></div></div></div>
+    <div class="skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel" style="height:12px;width:38%"></div><div class="skel" style="height:16px;width:85%"></div><div class="skel" style="height:16px;width:92%"></div><div class="skel" style="height:11px;width:95%"></div><div class="skel" style="height:11px;width:60%"></div></div></div>
+    <div class="skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel" style="height:12px;width:50%"></div><div class="skel" style="height:16px;width:80%"></div><div class="skel" style="height:16px;width:70%"></div><div class="skel" style="height:11px;width:88%"></div><div class="skel" style="height:11px;width:55%"></div></div></div>
+    <div class="skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel" style="height:12px;width:42%"></div><div class="skel" style="height:16px;width:88%"></div><div class="skel" style="height:16px;width:75%"></div><div class="skel" style="height:11px;width:82%"></div><div class="skel" style="height:11px;width:65%"></div></div></div>
+    <div class="skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel" style="height:12px;width:55%"></div><div class="skel" style="height:16px;width:76%"></div><div class="skel" style="height:16px;width:88%"></div><div class="skel" style="height:11px;width:72%"></div><div class="skel" style="height:11px;width:80%"></div></div></div>
+    <div class="skel-card"><div class="skel skel-img"></div><div class="skel-body"><div class="skel" style="height:12px;width:40%"></div><div class="skel" style="height:16px;width:93%"></div><div class="skel" style="height:16px;width:68%"></div><div class="skel" style="height:11px;width:90%"></div><div class="skel" style="height:11px;width:58%"></div></div></div>
+  </div>
+
+  <div id="newsGrid" class="news-grid" style="display:none"></div>
+  <div id="pagination" class="pagination"></div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- SCROLL TOP -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- FOOTER -->
+<footer>
+  <strong>TechPulse</strong> — Agregador pessoal de notícias tech via RSS · Uso privado<br>
+  Todo o conteúdo é © de seus respectivos proprietários e publicações.<br>
+  Este site exibe apenas títulos, descrições e links de feeds RSS públicos, conforme a prática padrão de agregação de conteúdo.<br>
+  <a href="https://tecnoblog.net" target="_blank">Tecnoblog</a> ·
+  <a href="https://canaltech.com.br" target="_blank">Canaltech</a> ·
+  <a href="https://tudocelular.com" target="_blank">TudoCelular</a> ·
+  <a href="https://adrenaline.com.br" target="_blank">Adrenaline</a> ·
+  <a href="https://clubedohardware.com.br" target="_blank">Clube do Hardware</a> ·
+  <a href="https://teclab.net.br" target="_blank">Teclab</a> ·
+  <a href="https://hardware.com.br" target="_blank">Hardware.com.br</a> ·
+  <a href="https://mundoconectado.com.br" target="_blank">Mundo Conectado</a> ·
+  <a href="https://tecnoarthardware.com.br" target="_blank">TecnoartHardware</a> ·
+  <a href="https://revistaprediointeligente.com.br" target="_blank">Prédio Inteligente</a>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   SOURCES — RSS feeds reais confirmados
+   Proxy: allorigins.win para contornar CORS
+═══════════════════════════════════════════════════════ */
+// rss2json converte qualquer feed RSS/Atom em JSON com suporte a CORS nativo.
+// Feeds marcados como offline foram testados e retornam erro 500 ou sem conteúdo.
+const SOURCES = [
+  {
+    id: 'tecnoblog',
+    name: 'Tecnoblog',
+    url: 'https://tecnoblog.net',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://tecnoblog.net/feed/',
+    color: '#e8270a',
+    status: 'ok'
+  },
+  {
+    id: 'tudocelular',
+    name: 'TudoCelular',
+    url: 'https://www.tudocelular.com',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://tudocelular.com/feed/',
+    color: '#ff6600',
+    status: 'ok'
+  },
+  {
+    id: 'adrenaline',
+    name: 'Adrenaline',
+    url: 'https://www.adrenaline.com.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://adrenaline.com.br/feed/',
+    color: '#c0222a',
+    status: 'ok'
+  },
+  {
+    id: 'clubedohardware',
+    name: 'Clube do Hardware',
+    url: 'https://www.clubedohardware.com.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://clubedohardware.com.br/rss/',
+    color: '#1a6b1a',
+    status: 'ok'
+  },
+  {
+    id: 'teclab',
+    name: 'Teclab',
+    url: 'https://teclab.net.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://teclab.net.br/feed/',
+    color: '#7b2d8b',
+    status: 'ok'
+  },
+  {
+    id: 'mundoconectado',
+    name: 'Mundo Conectado',
+    url: 'https://www.mundoconectado.com.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://mundoconectado.com.br/feed/',
+    color: '#0a7a7a',
+    status: 'ok'
+  },
+  {
+    id: 'tecnoarthardware',
+    name: 'TecnoartHardware',
+    url: 'https://tecnoarthardware.com.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://tecnoarthardware.com.br/feed/',
+    color: '#2244aa',
+    status: 'ok'
+  },
+  // Os dois abaixo retornaram erro 500 no rss2json — mantidos para tentativa futura
+  {
+    id: 'hardware',
+    name: 'Hardware.com.br',
+    url: 'https://www.hardware.com.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://hardware.com.br/noticias/',
+    color: '#b56c0a',
+    status: 'unstable'
+  },
+  {
+    id: 'prediointeligente',
+    name: 'Prédio Inteligente',
+    url: 'https://www.revistaprediointeligente.com.br',
+    feed: 'https://api.rss2json.com/v1/api.json?rss_url=https://revistaprediointeligente.com.br/feed/',
+    color: '#5a3a9a',
+    status: 'unstable'
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   CATEGORY KEYWORDS
+═══════════════════════════════════════════════════════ */
+const CAT_KEYWORDS = {
+  celulares:       ['celular','smartphone','iphone','android','samsung','xiaomi','motorola','realme','poco','redmi','galaxy','ios','telefone','5g','operadora','chip'],
+  pc:              ['processador','gpu','placa de vídeo','cpu','ram','ssd','hd','notebook','laptop','desktop','ryzen','intel','nvidia','amd','monitor','gabinete','fonte','cooler','computador','hardware','placa-mãe','overclock'],
+  redes:           ['internet','rede','wi-fi','wifi','5g','fibra','banda larga','roteador','router','conexão','provedor','latência','vpn','servidor','dns'],
+  'casa-inteligente': ['smart home','automação','alexa','google home','iot','residência','prédio inteligente','lâmpada','tomada inteligente','câmera de segurança','thermostat','zigbee','matter'],
+  games:           ['game','jogo','gaming','playstation','ps5','xbox','nintendo','steam','fps','rpg','mmo','esport','indie','lançamento','dlc','update','patch'],
+  ia:              ['inteligência artificial',' ia ','chatgpt','llm','openai','gemini','copilot','machine learning','deep learning','neural','gpt','claude','midjourney','geração de imagem','language model'],
+  wearables:       ['smartwatch','relógio inteligente','wearable','fitbit','apple watch','galaxy watch','garmin','xiaomi band','pulseira','fone','earbuds','tws','airpods'],
+  segurança:       ['segurança','privacidade','hack','hacker','vírus','malware','ransomware','cibersegurança','vazamento','phishing','vuln','exploit','zero-day','antivírus']
+};
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let allItems   = [];
+let filtered   = [];
+let activeCat  = 'todos';
+let activeSrc  = 'todas';
+let searchQ    = '';
+let page       = 1;
+const PER_PAGE = 15;
+let loading    = false;
+
+/* ═══════════════════════════════════════════════════════
+   DATE
+═══════════════════════════════════════════════════════ */
+const today = new Date();
+document.getElementById('dateDisplay').textContent =
+  today.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL TOP
+═══════════════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 400);
+});
+
+/* ═══════════════════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════════════════ */
+document.getElementById('searchInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+function doSearch() {
+  searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
+  page = 1;
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════════════
+   FILTERS
+═══════════════════════════════════════════════════════ */
+function setCat(cat, btn) {
+  activeCat = cat;
+  page = 1;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function setSrc(src, btn) {
+  activeSrc = src;
+  page = 1;
+  document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  let items = [...allItems];
+
+  // Filtro: fonte
+  if (activeSrc !== 'todas') {
+    items = items.filter(i => i.sourceId === activeSrc);
+  }
+
+  // Filtro: categoria (inclui "hoje" como opção especial)
+  if (activeCat === 'hoje') {
+    items = items.filter(i => isToday(i.pubDate));
+  } else if (activeCat !== 'todos') {
+    const kws = CAT_KEYWORDS[activeCat] || [activeCat];
+    items = items.filter(i => {
+      const hay = (i.title + ' ' + i.desc).toLowerCase();
+      return kws.some(k => hay.includes(k));
+    });
+  }
+
+  // Filtro: busca
+  if (searchQ) {
+    items = items.filter(i => {
+      const hay = (i.title + ' ' + i.desc + ' ' + i.sourceName).toLowerCase();
+      return searchQ.split(' ').every(w => hay.includes(w));
+    });
+  }
+
+  // Ordenar: mais recentes primeiro
+  items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  filtered = items;
+  renderNews();
+  renderPagination();
+  updateStatus();
+}
+
+/* ═══════════════════════════════════════════════════════
+   IS TODAY
+═══════════════════════════════════════════════════════ */
+function isToday(dateStr) {
+  if (!dateStr) return true; // se sem data, inclui por precaução
+  const d = new Date(dateStr);
+  if (isNaN(d)) return true;
+  const t = new Date();
+  return d.getFullYear() === t.getFullYear() &&
+         d.getMonth()    === t.getMonth()    &&
+         d.getDate()     === t.getDate();
+}
+
+/* ═══════════════════════════════════════════════════════
+   FORMAT TIME
+═══════════════════════════════════════════════════════ */
+function fmtTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return '';
+  if (isToday(dateStr)) {
+    return d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  }
+  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}) + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ═══════════════════════════════════════════════════════
+   GUESS CATEGORY
+═══════════════════════════════════════════════════════ */
+function guessCategory(title, desc) {
+  const hay = (title + ' ' + desc).toLowerCase();
+  for (const [cat, kws] of Object.entries(CAT_KEYWORDS)) {
+    if (kws.some(k => hay.includes(k))) return cat;
+  }
+  return null;
+}
+
+const CAT_LABELS = {
+  celulares: 'Celulares', pc: 'PC & HW', redes: 'Redes',
+  'casa-inteligente': 'Casa Inteligente', games: 'Games',
+  ia: 'IA & SW', wearables: 'Wearables', segurança: 'Segurança'
+};
+
+/* ═══════════════════════════════════════════════════════
+   STRIP HTML
+═══════════════════════════════════════════════════════ */
+function stripHtml(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  return d.textContent || d.innerText || '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER NEWS
+═══════════════════════════════════════════════════════ */
+function renderNews() {
+  const grid = document.getElementById('newsGrid');
+  document.getElementById('skeletonGrid').style.display = 'none';
+  grid.style.display = 'grid';
+
+  const start = (page - 1) * PER_PAGE;
+  const slice = filtered.slice(start, start + PER_PAGE);
+
+  if (slice.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📻</div>
+        <div class="empty-title">Nenhuma notícia encontrada</div>
+        <div class="empty-sub">Tente outro filtro, categoria ou palavra-chave.</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = slice.map((item, i) => {
+    const src = SOURCES.find(s => s.id === item.sourceId);
+    const cat = item.category;
+    const catLabel = cat ? CAT_LABELS[cat] || cat : null;
+    const time = fmtTime(item.pubDate);
+    const imgHtml = item.image
+      ? `<div class="card-img-wrap"><img src="${esc(item.image)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'card-img-placeholder\\'>📰</div>'"></div>`
+      : `<div class="card-img-wrap"><div class="card-img-placeholder">📰</div></div>`;
+
+    return `
+    <div class="news-card" style="animation-delay:${i*0.04}s" onclick="openModal(${i + (page-1)*PER_PAGE})">
+      ${imgHtml}
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge-source" style="background:${src?.color||'#444'}">${esc(item.sourceName)}</span>
+          ${catLabel ? `<span class="badge-cat">${catLabel}</span>` : ''}
+          ${time ? `<span class="badge-time">${time}</span>` : ''}
+        </div>
+        <div class="card-title">${esc(item.title)}</div>
+        ${item.desc ? `<div class="card-desc">${esc(item.desc.slice(0,200))}${item.desc.length>200?'…':''}</div>` : ''}
+      </div>
+      <div class="card-footer">
+        <span class="card-source-credit">
+          © <a href="${esc(src?.url||'#')}" target="_blank" onclick="event.stopPropagation()">${esc(item.sourceName)}</a>
+          ${item.author ? ` · ${esc(item.author)}` : ''}
+        </span>
+        <a href="${esc(item.link)}" target="_blank" class="read-link" onclick="event.stopPropagation()">
+          Ver original →
+        </a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ═══════════════════════════════════════════════════════
+   PAGINATION
+═══════════════════════════════════════════════════════ */
+function renderPagination() {
+  const total = Math.ceil(filtered.length / PER_PAGE);
+  const pg = document.getElementById('pagination');
+  if (total <= 1) { pg.innerHTML = ''; return; }
+  pg.innerHTML = Array.from({length: total}, (_,i) => i+1)
+    .map(p => `<button class="pg-btn ${p===page?'active':''}" onclick="goPage(${p})">${p}</button>`)
+    .join('');
+}
+
+function goPage(p) {
+  page = p;
+  window.scrollTo({top:0,behavior:'smooth'});
+  renderNews();
+  renderPagination();
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATUS
+═══════════════════════════════════════════════════════ */
+function updateStatus() {
+  const todayCount = allItems.filter(i => isToday(i.pubDate)).length;
+  const q = searchQ ? ` · "<strong>${esc(searchQ)}</strong>"` : '';
+  document.getElementById('statusText').innerHTML =
+    `<strong>${filtered.length}</strong> notícias exibidas · <strong>${todayCount}</strong> de hoje · ${allItems.length} total${q}`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════════════════ */
+function buildTicker() {
+  const todayItems = allItems.filter(i => isToday(i.pubDate)).slice(0, 30);
+  if (todayItems.length === 0) return;
+  const doubled = [...todayItems, ...todayItems];
+  document.getElementById('tickerInner').innerHTML =
+    doubled.map(i =>
+      `<span class="ticker-item">${esc(i.sourceName)}: ${esc(i.title)} <span class="sep">///</span></span>`
+    ).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════ */
+function openModal(idx) {
+  const item = filtered[idx];
+  if (!item) return;
+  const src = SOURCES.find(s => s.id === item.sourceId);
+  const cat = item.category ? (CAT_LABELS[item.category] || item.category) : null;
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-src-row">
+      <span class="badge-source" style="background:${src?.color||'#444'}">${esc(item.sourceName)}</span>
+      ${cat ? `<span class="badge-cat">${cat}</span>` : ''}
+      ${fmtTime(item.pubDate) ? `<span style="font-family:'Fira Code',monospace;font-size:.58rem;color:var(--text-muted)">${fmtTime(item.pubDate)}</span>` : ''}
+    </div>
+    <h2>${esc(item.title)}</h2>
+    ${item.desc ? `<div class="modal-desc">${esc(item.desc.slice(0,500))}${item.desc.length>500?'…':''}</div>` : ''}
+    <div class="modal-attribution">
+      <strong>Fonte:</strong> ${esc(item.sourceName)} — <a href="${esc(src?.url||'#')}" target="_blank">${esc(src?.url||'')}</a><br>
+      ${item.author ? `<strong>Autor(a):</strong> ${esc(item.author)}<br>` : ''}
+      <strong>Publicado em:</strong> ${item.pubDate ? new Date(item.pubDate).toLocaleString('pt-BR') : 'hoje'}<br>
+      <strong>Link original:</strong> <a href="${esc(item.link)}" target="_blank">${esc(item.link)}</a><br>
+      <strong>Aviso:</strong> Este resumo veio do feed RSS público da publicação. O conteúdo completo pertence ao veículo original.
+    </div>
+    <a class="modal-cta" href="${esc(item.link)}" target="_blank">
+      Ler artigo completo no ${esc(item.sourceName)} →
+    </a>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+
+/* ═══════════════════════════════════════════════════════
+   FETCH SINGLE FEED via rss2json
+═══════════════════════════════════════════════════════ */
+async function fetchFeed(source) {
+  try {
+    const res = await fetch(source.feed, { signal: AbortSignal.timeout(14000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'feed error');
+
+    return (json.items || []).map(item => {
+      const title   = stripHtml(item.title || '');
+      const link    = item.link || item.guid || '';
+      const desc    = stripHtml(item.description || item.content || '').slice(0, 600);
+      const pubDate = item.pubDate || '';
+      const author  = item.author || '';
+      const image   = item.thumbnail || item.enclosure?.link || extractImgSrc(item.description || item.content || '');
+      const cat     = guessCategory(title, desc);
+
+      if (!title || !link) return null;
+      return { sourceId: source.id, sourceName: source.name, sourceUrl: source.url, title, link, desc, pubDate, author, image, category: cat };
+    }).filter(Boolean);
+
+  } catch (err) {
+    console.warn(`[TechPulse] Falha: ${source.name} —`, err.message);
+    return [];
+  }
+}
+
+function extractImgSrc(html) {
+  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m ? m[1] : '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOAD ALL FEEDS
+═══════════════════════════════════════════════════════ */
+async function loadAllFeeds(force = false) {
+  if (loading) return;
+  loading = true;
+
+  // Reset UI
+  document.getElementById('skeletonGrid').style.display = 'grid';
+  document.getElementById('newsGrid').style.display = 'none';
+  document.getElementById('newsGrid').innerHTML = '';
+  document.getElementById('pagination').innerHTML = '';
+  document.getElementById('statusText').textContent = 'Carregando feeds RSS…';
+  document.getElementById('errorBanner').style.display = 'none';
+
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+
+  // Busca todos os feeds em paralelo
+  const results = await Promise.allSettled(SOURCES.map(fetchFeed));
+
+  const errors = [];
+  allItems = [];
+
+  results.forEach((res, i) => {
+    if (res.status === 'fulfilled') {
+      allItems.push(...res.value);
+      if (res.value.length === 0) errors.push(SOURCES[i].name);
+    } else {
+      errors.push(SOURCES[i].name);
+    }
+  });
+
+  if (errors.length > 0 && errors.length < SOURCES.length) {
+    const banner = document.getElementById('errorBanner');
+    banner.style.display = 'block';
+    banner.textContent = `⚠ Feeds com falha (possivelmente offline ou sem RSS): ${errors.join(', ')}`;
+  } else if (errors.length === SOURCES.length) {
+    const banner = document.getElementById('errorBanner');
+    banner.style.display = 'block';
+    banner.textContent = '⚠ Não foi possível carregar os feeds. Verifique sua conexão com a internet.';
+  }
+
+  buildTicker();
+  applyFilters();
+
+  loading = false;
+  btn.classList.remove('spinning');
+}
+
+// ── INIT ──
+loadAllFeeds();
+</script>
+</body>
+</html>
