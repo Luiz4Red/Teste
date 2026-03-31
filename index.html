@@ -2275,12 +2275,16 @@ function importData(charKey) {
       try {
         const obj = JSON.parse(e.target.result);
 
-        // ... existing code ...
+        // Check if the user is logged in using Firebase
+        if (firebase.auth().currentUser) {
 
         showToast('✓ Dados importados com sucesso!', 'success');
 
-        // ... existing code ...
-
+         } else {
+          // Show an error message or redirect the user to the login page
+          showToast('Por favor, faça login para importar os dados', 'error');
+          window.location.href = 'login.html';
+        }
       } catch (err) {
         console.error(err);
         showToast('Erro ao ler o arquivo JSON', 'error');
