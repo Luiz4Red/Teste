@@ -2238,24 +2238,46 @@
       URL.revokeObjectURL(a.href);
     };
 
-    window.importData = function(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async e => {
-        try {
-          const obj = JSON.parse(e.target.result);
-          // Write each key through S.set so it syncs to Firestore if logged in
-          for (const [k, v] of Object.entries(obj)) {
-            S.set(k, v);
-          }
-          showToast('✓ Dados importados' + (_uid ? ' e sincronizados' : ' localmente'), 'success');
-          setTimeout(() => location.reload(), 1500);
-        } catch { showToast('Erro ao ler o arquivo JSON', 'error'); }
-      };
-      reader.readAsText(file);
-      input.value = '';
-    };
+   window.importData = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  
+  reader.onload = async e => {
+    try {
+      const obj = JSON.parse(e.target.result);
+      
+      // --- CORREÇÃO DE DUPLICIDADE ---
+      // 1. Limpar todos os dados locais atuais do tracker (prefixo gt_)
+      // Isso garante que o Import seja uma substituição limpa, não uma soma.
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('gt_')) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      // 2. Importar os novos dados
+      // Se houver UID, o S.set enviará para o Firestore sobrescrevendo os campos
+      for (const [k, v] of Object.entries(obj)) {
+        // Remove o prefixo se o JSON já o tiver, ou garante consistência
+        const cleanKey = k.startsWith('gt_') ? k.slice(3) : k;
+        S.set(cleanKey, v);
+      }
+      
+      showToast('✓ Dados importados com sucesso!', 'success');
+      
+      // 3. Forçar recarregamento para atualizar todos os timers e estados
+      setTimeout(() => location.reload(), 1000);
+      
+    } catch (err) { 
+      console.error(err);
+      showToast('Erro ao ler o arquivo JSON', 'error'); 
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+};
 
     // ── Auth state observer ──
     onAuthStateChanged(auth, async (user) => {
@@ -2406,10 +2428,10 @@
             <div class="pe-grp" style="grid-column:1/-1">
               <label class="pe-lbl">50/50 <span>*</span></label>
               <div class="radio-row" id="rr-${g.id}">
-                <div class="ropt" data-val="W" onclick="selFifty('${g.id}','W')">W — Ganhou</div>
-                <div class="ropt" data-val="G" onclick="selFifty('${g.id}','G')">G — Garantido</div>
-                <div class="ropt" data-val="L" onclick="selFifty('${g.id}','L')">L — Perdeu</div>
-              </div>
+  <div class="ropt" data-val="W" onclick="selFifty('${g.id}','W')">W — Ganhou</div>
+  <div class="ropt" data-val="G" onclick="selFifty('${g.id}','G')">G — Garantido</div>
+  <div class="ropt" data-val="L" onclick="selFifty('${g.id}','L')">L — Perdeu</div>
+</div>
             </div>
           </div>
           <div class="pull-btns">
@@ -2421,19 +2443,24 @@
         </div><!-- /pull-collapsible -->
       </div>
       <div class="pblock sec1">
-        <div class="pblock-title">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
-          Histórico — últimos ${MAX_HIST} pulls 5★
-        </div>
-        <div class="hist-list" id="hist-${g.id}"><div class="hist-empty">Nenhum pull registrado.</div></div>
-      </div>
+  <div class="pblock-title" style="display: flex; justify-content: space-between; align-items: center;">
+    <span style="display: flex; align-items: center; gap: 5px;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+      Histórico — últimos ${MAX_HIST} pulls 5★
+    </span>
+    <button class="nav-btn nav-btn-logout" style="padding: 2px 8px; font-size: 0.55rem;" onclick="clearHistory('${g.id}')">
+      Limpar
+    </button>
+  </div>
+  <div class="hist-list" id="hist-${g.id}"><div class="hist-empty">Nenhum pull registrado.</div></div>
+</div>
     `;
           wrap.appendChild(div);
         });
       }
 
       // ── FIFTY RADIO ──
-      function selFifty(gameId, val) {
+       window.selFifty = function(gameId, val) {
         fiftyState[gameId] = val;
         document.querySelectorAll("#rr-" + gameId + " .ropt").forEach(el => {
           el.className = "ropt" + (el.dataset.val === val ? " s" + val : "");
@@ -2485,7 +2512,7 @@
       }
 
       // ── POST PULL → history + pity ──
-      function postPull(id) {
+       window.postPull = function(id) {
         const char = (document.getElementById("pei-char-" + id)?.value || "").trim();
         const pp = parseInt(document.getElementById("pei-pp-" + id)?.value);
         const cur = parseInt(document.getElementById("pei-cur-" + id)?.value);
@@ -2506,7 +2533,7 @@
       }
 
       // ── EDIT ONLY → pity only, no history ──
-      function editOnly(id) {
+       window.editOnly = function(id) {
         const char = (document.getElementById("pei-char-" + id)?.value || "").trim();
         const pp = parseInt(document.getElementById("pei-pp-" + id)?.value);
         const cur = parseInt(document.getElementById("pei-cur-" + id)?.value);
@@ -2520,14 +2547,14 @@
         showHint(hint, "✓ Card atualizado (sem adicionar ao histórico).", "var(--accent2)");
       }
 
-      function showHint(el, msg, color) {
+       window.showHint = function(el, msg, color) {
         if (!el) return;
         el.textContent = msg; el.style.color = color; el.classList.add("vis");
         setTimeout(() => el.classList.remove("vis"), 3000);
       }
 
       // ── HISTORY ──
-      function renderHistory(id) {
+       window.renderHistory = function(id) {
         const hist = S.get(id + "_history", []);
         const el = document.getElementById("hist-" + id);
         if (!el) return;
@@ -2923,7 +2950,22 @@
         if (name === "stats") renderStats();
         window.scrollTo({ top: 0, behavior: "smooth" });
       };
-
+window.clearHistory = function(id) {
+  if (confirm("Deseja apagar permanentemente o histórico de pulls de " + id + "?")) {
+    // Limpa no Storage (S.set cuidará da sincronização com Firebase se logado)
+    S.set(id + "_history", []);
+    
+    // Atualiza a interface local
+    renderHistory(id);
+    
+    // Se estiver na página de estatísticas, atualiza ela também
+    if (document.getElementById('page-stats').classList.contains('active')) {
+      renderStats();
+    }
+    
+    showToast("Histórico de " + id + " apagado.", "info");
+  }
+}
       // ── SELECT GAME ──
       window.selectGame = function(id) {
         activeGame = id;
