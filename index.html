@@ -2045,43 +2045,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-window.switchPage = function(name) {
-        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-        document.getElementById("page-" + name).classList.add("active");
-        document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
-        document.getElementById("ntab-" + name).classList.add("active");
-        if (name === "banner" && !bannerLoaded) loadBanners(false);
-        if (name === "stats") renderStats();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
 
-      // ── SELECT GAME ──
-      window.selectGame = function (id) {
-        activeGame = id;
-        document.body.setAttribute("data-game", id);
-        document.querySelectorAll(".game-card").forEach(c => c.classList.remove("active"));
-        document.getElementById("gc-" + id).classList.add("active");
-        document.getElementById("welcome-screen").style.display = "none";
-        document.querySelectorAll(".game-panel").forEach(p => p.classList.remove("active"));
-        document.getElementById("gp-" + id).classList.add("active");
-        // Set game background image on main panel
-        const mp = document.getElementById("main-panel-bg");
-        const mo = document.getElementById("main-panel-bg-overlay");
-        if (mp && IMG[id]) {
-          mp.style.backgroundImage = "url('" + IMG[id] + "')";
-          mp.style.opacity = "1";
-          mp.style.filter = "brightness(.22) saturate(1.4) blur(1px)";
-        }
-        if (mo) mo.style.opacity = "1";
-        prefillForm(id);
-        // On mobile, scroll to the content below the cards rail
-        if (window.innerWidth <= 640) {
-          setTimeout(() => {
-            const mp = document.querySelector('.main-panel');
-            if (mp) mp.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 80);
-        }
-      }
+
     // ════════════════════════════════════════════════════
     //  FIREBASE CONFIG & AUTH
     // ════════════════════════════════════════════════════
@@ -2947,6 +2912,45 @@ window.switchPage = function(name) {
         refreshPity(g.id);
         renderHistory(g.id);
       });
+
+      // ── PAGE SWITCHING ──
+      window.switchPage = function(name) {
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        document.getElementById("page-" + name).classList.add("active");
+        document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+        document.getElementById("ntab-" + name).classList.add("active");
+        if (name === "banner" && !bannerLoaded) loadBanners(false);
+        if (name === "stats") renderStats();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      // ── SELECT GAME ──
+      window.selectGame = function(id) {
+        activeGame = id;
+        document.body.setAttribute("data-game", id);
+        document.querySelectorAll(".game-card").forEach(c => c.classList.remove("active"));
+        document.getElementById("gc-" + id).classList.add("active");
+        document.getElementById("welcome-screen").style.display = "none";
+        document.querySelectorAll(".game-panel").forEach(p => p.classList.remove("active"));
+        document.getElementById("gp-" + id).classList.add("active");
+        // Set game background
+        const mp  = document.getElementById("main-panel-bg");
+        const mo  = document.getElementById("main-panel-bg-overlay");
+        if (mp && IMG[id]) {
+          mp.style.backgroundImage = "url('" + IMG[id] + "')";
+          mp.style.opacity = "1";
+          mp.style.filter  = "brightness(.22) saturate(1.4) blur(1px)";
+        }
+        if (mo) mo.style.opacity = "1";
+        prefillForm(id);
+        // Smooth scroll on mobile
+        setTimeout(() => {
+          const mp2 = document.querySelector(".main-panel");
+          if (mp2) mp2.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
+      };
+
+    
     }
   
   </script>
