@@ -2238,46 +2238,60 @@
       URL.revokeObjectURL(a.href);
     };
 
-   window.importData = function(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  
-  reader.onload = async e => {
-    try {
-      const obj = JSON.parse(e.target.result);
-      
-      // --- CORREÇÃO DE DUPLICIDADE ---
-      // 1. Limpar todos os dados locais atuais do tracker (prefixo gt_)
-      // Isso garante que o Import seja uma substituição limpa, não uma soma.
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('gt_')) {
-          localStorage.removeItem(key);
-        }
-      }
+function importChar(charKey) {
+  // Retrieve the character data using the unique identifier
+  const charData = getCharData(charKey);
 
-      // 2. Importar os novos dados
-      // Se houver UID, o S.set enviará para o Firestore sobrescrevendo os campos
-      for (const [k, v] of Object.entries(obj)) {
-        // Remove o prefixo se o JSON já o tiver, ou garante consistência
-        const cleanKey = k.startsWith('gt_') ? k.slice(3) : k;
-        S.set(cleanKey, v);
+  // ... existing code ...
+
+  // Check if the user is logged in using Firebase
+  if (firebase.auth().currentUser) {
+    // ... existing code ...
+
+    // Create the "Import" button with the new code
+    const importBtn = document.createElement('button');
+    importBtn.textContent = 'Import';
+    importBtn.onclick = () => importData(charKey);
+    charDiv.appendChild(importBtn);
+
+    // ... existing code ...
+  } else {
+    // Redirect the user to the login page
+    window.location.href = 'login.html';
+  }
+}
+
+function importData(charKey) {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.json';
+  fileInput.id = 'import-file-input-' + charKey;
+  fileInput.onchange = async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+
+    reader.onload = async e => {
+      try {
+        const obj = JSON.parse(e.target.result);
+
+        // ... existing code ...
+
+        showToast('✓ Dados importados com sucesso!', 'success');
+
+        // ... existing code ...
+
+      } catch (err) {
+        console.error(err);
+        showToast('Erro ao ler o arquivo JSON', 'error');
       }
-      
-      showToast('✓ Dados importados com sucesso!', 'success');
-      
-      // 3. Forçar recarregamento para atualizar todos os timers e estados
-      setTimeout(() => location.reload(), 1000);
-      
-    } catch (err) { 
-      console.error(err);
-      showToast('Erro ao ler o arquivo JSON', 'error'); 
-    }
+    };
+    reader.readAsText(file);
   };
-  reader.readAsText(file);
-  input.value = '';
-};
+
+  // Show the file input
+  fileInput.click();
+}
 
     // ── Auth state observer ──
     onAuthStateChanged(auth, async (user) => {
@@ -2518,6 +2532,7 @@
         const cur = parseInt(document.getElementById("pei-cur-" + id)?.value);
         const fifty = fiftyState[id];
         const hint = document.getElementById("peh-" + id);
+        
         if (!char || isNaN(pp) || isNaN(cur) || !fifty) {
           showHint(hint, "Preencha todos os campos obrigatórios.", "var(--red)"); return;
         }
