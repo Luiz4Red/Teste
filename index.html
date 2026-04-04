@@ -2520,9 +2520,10 @@ const GAME_THEME_COLORS = {
     const ftShort = v => v === "W" ? "W" : v === "G" ? "G" : "L";
 
     // ── PAGE SWITCH ──
-    function switchPage(name) {
+function switchPage(name) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+
     const p = document.getElementById("page-" + name);
     const t = document.getElementById("ntab-" + name);
     if (p) p.classList.add("active");
@@ -2531,7 +2532,11 @@ const GAME_THEME_COLORS = {
     if (name === "banner" && !bannerLoaded) loadBanners(false);
     if (name === "stats") { buildStatsRail(); if (statsGameA) selectStatsGame(statsGameA); }
     if (name === "monthly") renderMonthlySummary();
-    if (name === "tracker" && activeGame) updateLiveStatusUI();
+    
+    // Atualiza o status live quando entrar no tracker
+    if (name === "tracker") {
+        updateLiveStatusUI(); 
+    }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -3517,11 +3522,20 @@ const CloudSync = {
         } catch (e) { console.error(e); }
     },
     fetchByLabel: async function(label) {
+        if (!label) return null;
         try {
-            const res = await fetch(SHEETY_BASE_URL, { headers: { 'Authorization': `Bearer ${SHEETY_TOKEN}` } });
+            const res = await fetch(SHEETY_BASE_URL, { 
+                headers: { 'Authorization': `Bearer ${SHEETY_TOKEN}` } 
+            });
             const data = await res.json();
-            return data.página1.find(row => row.label === label);
-        } catch (e) { return null; }
+            if (data && data.página1) {
+                return data.página1.find(row => row.label === label);
+            }
+            return null;
+        } catch (e) {
+            console.error("Erro ao buscar no Sheety:", e);
+            return null;
+        }
     },
     fetchFromRender: async function(label) {
         try {
@@ -3535,14 +3549,18 @@ const CloudSync = {
         fields.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.disabled = isLocked;
-                if (id.includes('ltoken') || id.includes('ltuid')) el.type = isLocked ? "password" : "text";
+                el.disabled = isLocked; // Impede a edição
+                // Transforma ltuid e ltoken em bolinhas (password)
+                if (id.includes('ltoken') || id.includes('ltuid')) {
+                    el.type = isLocked ? "password" : "text"; 
+                }
             }
         });
-        const m = document.getElementById('btn-cloud-main'), e = document.getElementById('btn-cloud-edit');
-        if (m) m.style.display = isLocked ? 'none' : 'block';
-        if (e) e.style.display = isLocked ? 'block' : 'none';
-    }
+        const btnMain = document.getElementById('btn-cloud-main');
+        const btnEdit = document.getElementById('btn-cloud-edit');
+        if (btnMain) btnMain.style.display = isLocked ? 'none' : 'block';
+        if (btnEdit) btnEdit.style.display = isLocked ? 'block' : 'none';
+    },
 };
 
 
@@ -3555,41 +3573,53 @@ async function syncByLabel() {
 
     if (!label) return alert("Digite o seu ID (Label)");
 
-    statusEl.textContent = "Buscando dados...";
+    statusEl.textContent = "Buscando dados no servidor...";
     statusEl.style.color = "var(--gold)";
 
-    // 1. Busca no Render (Credenciais)
+    // 1. Busca as credenciais e UIDs no servidor RENDER
     const account = await CloudSync.fetchFromRender(label);
-    if (!account) {
-        statusEl.textContent = "❌ ID não encontrado no servidor Render.";
-        return;
-    }
 
-    // 2. Busca no Sheety (Dados do Site / Pity)
-    const cloudRow = await CloudSync.fetchByLabel(label);
+    if (account) {
+        // PREENCHIMENTO DOS CAMPOS PARA CONFIRMAÇÃO DO USUÁRIO
+        // Preenche os UIDs vindos do servidor
+        document.getElementById('cloud-gs').value = account.uid_gs || "";
+        document.getElementById('cloud-hsr').value = account.uid_hsr || "";
+        document.getElementById('cloud-zzz').value = account.uid_zzz || "";
 
-    if (cloudRow && cloudRow.siteData) {
-        if (confirm("Backup de Pities/Countdowns encontrado! Deseja carregar os dados da nuvem?")) {
-            CloudSync.unpackCloudData(cloudRow.siteData);
-            localStorage.setItem('gt_sync_label', label);
-            alert("✓ Sincronização concluída! O site irá recarregar.");
-            location.reload();
-            return;
+        // Preenche os tokens (eles ficarão visíveis por 1 segundo antes do lockUI esconder)
+        document.getElementById('cloud-ltuid').value = account.ltuid_v2;
+        document.getElementById('cloud-ltoken').value = account.ltoken_v2;
+
+        // 2. Busca o backup de Pities/Countdowns no SHEETY
+        const cloudRow = await CloudSync.fetchByLabel(label);
+
+        if (cloudRow && cloudRow.siteData) {
+            if (confirm("✓ Conta encontrada!\n\nTambém detectamos um backup de Pities e Countdowns na nuvem. Deseja restaurar seu progresso agora?")) {
+                CloudSync.unpackCloudData(cloudRow.siteData);
+                localStorage.setItem('gt_sync_label', label);
+                alert("✓ Tudo pronto! O site será reiniciado com seus dados.");
+                location.reload();
+                return;
+            }
         }
-    }
 
-    // Preenche campos básicos se não for recarregar
-    document.getElementById('cloud-ltuid').value = account.ltuid_v2;
-    document.getElementById('cloud-ltoken').value = account.ltoken_v2;
-    document.getElementById('cloud-gs').value = account.uid_gs || "";
-    document.getElementById('cloud-hsr').value = account.uid_hsr || "";
-    document.getElementById('cloud-zzz').value = account.uid_zzz || "";
-    
-    localStorage.setItem('gt_sync_label', label);
-    statusEl.textContent = "✓ Sincronizado e Protegido!";
-    statusEl.style.color = "var(--green)";
-    CloudSync.lockUI(true);
-    updateLiveStatusUI();
+        // Caso o usuário não tenha backup ou cancele a restauração, 
+        // apenas vinculamos o ID para mostrar o "Status Live"
+        localStorage.setItem('gt_sync_label', label);
+        
+        statusEl.textContent = "✓ ID Vinculado! Protegendo dados...";
+        statusEl.style.color = "var(--green)";
+
+        // Pequeno delay para o usuário ver os campos preenchidos antes de mascarar
+        setTimeout(() => {
+            CloudSync.lockUI(true); // Esconde os tokens e desabilita campos
+            if (typeof updateLiveStatusUI === "function") updateLiveStatusUI();
+        }, 1000);
+
+    } else {
+        statusEl.textContent = "❌ ID (Label) não encontrado no banco de dados.";
+        statusEl.style.color = "var(--red)";
+    }
 }
 
 // Função de Edição da Nuvem
@@ -3666,18 +3696,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Adicione esta função ao seu objeto CloudSync ou Scripts globais
 async function updateLiveStatusUI() {
-    const cloudRow = await CloudSync.fetchCloud();
-    if (cloudRow && cloudRow.liveData) {
-        const live = JSON.parse(cloudRow.liveData);
-        const gameMap = { "genshin": "gs", "hsr": "hsr", "zzz": "zzz" };
-        const data = live[gameMap[activeGame]];
+    const label = localStorage.getItem('gt_sync_label');
+    if (!label) return;
 
-        const container = document.getElementById(`live-status-container-${activeGame}`);
-        if (data && data !== "N/A" && container) {
-            container.style.display = "block";
-            document.getElementById(`live-resina-${activeGame}`).textContent = data.resin || data.stamina || data.energy;
-            document.getElementById(`live-diaria-${activeGame}`).textContent = data.daily;
-            document.getElementById(`live-endgame-${activeGame}`).textContent = data.endgame;
+    // Localiza o container do jogo atual (activeGame)
+    const container = document.getElementById(`live-status-container-${activeGame}`);
+    if (!container) return;
+
+    // CHAMA A FUNÇÃO CORRETA: fetchByLabel
+    const cloudRow = await CloudSync.fetchByLabel(label);
+
+    if (cloudRow && (cloudRow.liveData || cloudRow.livedata)) {
+        try {
+            const rawJson = cloudRow.liveData || cloudRow.livedata;
+            const live = JSON.parse(rawJson);
+            
+            // Mapeia o ID do site (genshin) para a chave do JSON (gs)
+            const keyMap = { "genshin": "gs", "hsr": "hsr", "zzz": "zzz" };
+            const gameData = live[keyMap[activeGame]];
+
+            if (gameData && gameData !== "N/A") {
+                container.style.display = "block";
+                
+                // Preenche os campos criados no buildPanels
+                const resinEl = document.getElementById(`live-resina-${activeGame}`);
+                const dailyEl = document.getElementById(`live-diaria-${activeGame}`);
+                const endgameEl = document.getElementById(`live-endgame-${activeGame}`);
+
+                if(resinEl) resinEl.textContent = gameData.resin || gameData.stamina || gameData.energy;
+                if(dailyEl) {
+                    dailyEl.textContent = gameData.daily;
+                    dailyEl.style.color = gameData.daily.includes("Done") ? "var(--green)" : "var(--gold)";
+                }
+                if(endgameEl) endgameEl.textContent = gameData.endgame;
+            } else {
+                container.style.display = "none";
+            }
+        } catch (e) {
+            console.error("Erro ao processar JSON liveData:", e);
         }
     }
 }
