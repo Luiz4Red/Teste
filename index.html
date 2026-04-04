@@ -77,17 +77,17 @@
     }
 
     [data-game="zzz"] {
-      --accent: #f5c800;
-      --accent2: #ffe040;
-      --aR: 245;
-      --aG: 200;
-      --aB: 0;
-      --card: #141414;
-      --card2: #1c1c1e;
+--accent: #00f5f5;   /* Cor principal (Hex) */
+    --accent2: #5effff;  /* Cor de brilho mais clara */
+    --aR: 0; 
+    --aG: 245;
+    --aB: 245;
+       --card: #0a1111;     /* Tom escuro do card baseado na nova cor */
+    --card2: #101a1a;
       --card3: #0a0a0b;
-      --border: rgba(255, 200, 0, .15);
-      --border2: rgba(255, 220, 0, .30);
-      --text: #e8e8e0;
+      --border: rgba(0, 245, 245, 0.15);
+    --border2: rgba(0, 245, 245, 0.30);
+    --text: #e0f8f8;
       --muted: #484840;
       --muted2: #888870;
     }
@@ -2456,7 +2456,7 @@
     const GAME_THEME_COLORS = {
       "Genshin Impact": "#c9a227",
       "Honkai: Star Rail": "#9b59f5",
-      "Zenless Zone Zero": "#f5c800",
+      "Zenless Zone Zero": "#00f5f5",
       "Arknights: Endfield": "#30e08a"
     };
 
@@ -3365,42 +3365,91 @@ Gerado em: ${new Date().toLocaleString()}
     }
 
     // Seleciona o jogo na aba de estatísticas
-    function selectStatsGame(id) {
-      statsGameA = id;
-      statsGameB = null;
-      document.querySelectorAll("#stats-rail .game-card").forEach(c => c.classList.remove("active"));
-      const selectedCard = document.getElementById("gs-" + id);
-      if (selectedCard) selectedCard.classList.add("active");
-      document.getElementById("stats-welcome").style.display = "none";
-      document.getElementById("stats-content-area").style.display = "block";
-      renderStatsView();
-    }
+   function selectStatsGame(id) {
+    statsGameA = id;
+    statsGameB = null; 
+    
+    // Atualiza a barra lateral (Rail) de estatísticas
+    document.querySelectorAll("#stats-rail .game-card").forEach(c => c.classList.remove("active"));
+    const selectedCard = document.getElementById("gs-" + id);
+    if (selectedCard) selectedCard.classList.add("active");
+    
+    // UI
+    document.getElementById("stats-welcome").style.display = "none";
+    document.getElementById("stats-content-area").style.display = "block";
+    
+    renderStatsView();
+}
     // Renderiza a área interna de estatísticas com botão de comparar
     function renderStatsView() {
-      const area = document.getElementById("stats-content-area");
-      const gA = GAMES.find(x => x.id === statsGameA);
-      area.innerHTML = `
-        <div class="bp-title" style="color:${GAME_THEME_COLORS[gA.name]}">${gA.name}</div>
-        <div id="stats-render-zone">${generateSingleStatHTML(statsGameA)}</div>
-        <div class="compare-box">
-            <span class="vs-badge">COMPARAR:</span>
-            <select class="compare-select" onchange="startComparison(this.value)">
-                <option value="">Escolha um jogo...</option>
+    const area = document.getElementById("stats-content-area");
+    const gA = GAMES.find(x => x.id === statsGameA);
+    const themeColor = GAME_THEME_COLORS[gA.name] || "var(--accent)";
+
+    area.innerHTML = `
+        <!-- CABEÇALHO ESTILO TRACKER -->
+        <div class="gp-header">
+            <div class="gp-icon" style="border-color: ${themeColor}; box-shadow: 0 0 12px ${themeColor}44">
+                <img src="${IMG[gA.id]}" alt="${gA.name}">
+            </div>
+            <div>
+                <div class="gp-title" style="color: ${themeColor}">${gA.name.toUpperCase()}</div>
+                <div class="gp-sub">Estatísticas Gerais e Comparação de Sorte</div>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DE DADOS -->
+        <div id="stats-render-zone" style="margin-top: 20px;">
+            ${generateSingleStatHTML(statsGameA)}
+        </div>
+
+        <!-- SELECT DE COMPARAÇÃO -->
+        <div class="compare-box" style="border-color: ${themeColor}44; background: ${themeColor}08; margin-top: 20px; padding: 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px;">
+            <span class="vs-badge" style="color: ${themeColor}; font-family: Rajdhani; font-weight: 700; font-size: 0.9rem;">COMPARAR COM:</span>
+            <select class="compare-select" onchange="startComparison(this.value)" style="flex: 1; background: var(--card); color: var(--text); border: 1px solid ${themeColor}88; padding: 8px; border-radius: 6px; outline: none; font-family: 'Exo 2'; cursor: pointer;">
+                <option value="">Escolha um jogo para comparar...</option>
                 ${GAMES.filter(g => g.id !== statsGameA).map(g => `<option value="${g.id}">${g.name}</option>`).join("")}
             </select>
-        </div>`;
-    }
+        </div>
+    `;
+}
     // Função auxiliar para os quadradinhos de status
     function generateSingleStatHTML(id) {
-      const g = GAMES.find(x => x.id === id);
-      const hist = S.get(id + "_history", []);
-      if (hist.length === 0) return `<div class="hist-empty">Sem dados para ${g.short}</div>`;
-      const avg = (hist.reduce((s, h) => s + (h.pullPity || 0), 0) / hist.length).toFixed(1);
-      return `<div class="sc" style="border-top:3px solid ${GAME_THEME_COLORS[g.name]}">
-        <div class="sc-num">${hist.length} <small>Pulls</small></div>
-        <div class="sc-lbl">Pity Médio: ${avg}</div>
-    </div>`;
+    const g = GAMES.find(x => x.id === id);
+    const hist = S.get(id + "_history", []);
+    const themeColor = GAME_THEME_COLORS[g.name] || "var(--accent)";
+    
+    // Se não tiver dados, mostra aviso
+    if (hist.length === 0) {
+        return `<div class="pblock" style="border: 1px dashed var(--border); text-align: center; padding: 20px; color: var(--muted2); font-size: 0.8rem;">
+                    Nenhum pull 5★ registrado no histórico de ${g.short}.
+                </div>`;
     }
+
+    const avg = (hist.reduce((s, h) => s + (h.pullPity || 0), 0) / hist.length).toFixed(1);
+    const wins = hist.filter(h => h.fifty === "W").length;
+    const loss = hist.filter(h => h.fifty === "L").length;
+
+    return `
+        <div class="pblock" style="border-color: ${themeColor}66; background: ${themeColor}05;">
+            <div class="pblock-title" style="color: ${themeColor}; font-size: 0.65rem; margin-bottom: 12px;">${g.short.toUpperCase()}</div>
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div class="sc" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                    <span class="sc-num" style="font-size: 1.4rem; display: block; font-weight: 700; color: #fff;">${hist.length}</span>
+                    <span class="sc-lbl" style="font-size: 0.55rem; text-transform: uppercase; color: var(--muted2);">Pulls 5★</span>
+                </div>
+                <div class="sc" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                    <span class="sc-num" style="font-size: 1.4rem; display: block; font-weight: 700; color: ${avg > 60 ? 'var(--gold)' : 'var(--green)'};">${avg}</span>
+                    <span class="sc-lbl" style="font-size: 0.55rem; text-transform: uppercase; color: var(--muted2);">Pity Médio</span>
+                </div>
+                <div class="sc" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                    <span class="sc-num" style="font-size: 1.1rem; display: block; font-weight: 700; color: var(--green); margin-top: 4px;">${wins}W <span style="color:var(--muted)">/</span> <span style="color:var(--red)">${loss}L</span></span>
+                    <span class="sc-lbl" style="font-size: 0.55rem; text-transform: uppercase; color: var(--muted2);">Sorte 50/50</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
     function startComparison(idB) {
       if (!idB) return;
