@@ -2579,28 +2579,66 @@
       renderMonthlySummary();
     }
 
-    async function performCloudSync() {
-      const label = document.getElementById('sync-id-input').value.trim();
-      if (!label) return alert("Digite o ID!");
-      const statusEl = document.getElementById('cloud-status-msg');
-      statusEl.textContent = "Sincronizando...";
+async function performCloudSync() {
+    const labelInput = document.getElementById('sync-id-input');
+    const label = labelInput.value.trim();
+    const statusEl = document.getElementById('cloud-status-msg');
 
-      const account = await CloudSync.fetchFromRender(label);
-      if (!account) { statusEl.textContent = "❌ ID não encontrado."; return; }
+    if (!label) return alert("Digite o seu ID!");
 
-      const cloudRow = await CloudSync.fetchByLabel(label);
-      if (cloudRow && cloudRow.siteData && confirm("Restaurar backup da nuvem?")) {
-        CloudSync.unpackCloudData(cloudRow.siteData);
-        localStorage.setItem('gt_sync_label', label);
-        location.reload();
-        return;
-      }
+    // SALVA LOGO NO INÍCIO para garantir que o navegador não esqueça
+    localStorage.setItem('gt_sync_label', label);
 
-      localStorage.setItem('gt_sync_label', label);
-      statusEl.textContent = "✓ Sincronizado!";
-      CloudSync.lockUI(true);
+    statusEl.textContent = "📡 Conectando ao servidor Render...";
+    statusEl.style.color = "var(--gold)";
+
+    try {
+        const account = await CloudSync.fetchFromRender(label);
+
+        if (account) {
+            // --- RESTAURAÇÃO (Nuvem -> PC) ---
+            if (account.sitedata) {
+                try {
+                    const cloudBackup = JSON.parse(account.sitedata);
+                    Object.entries(cloudBackup).forEach(([key, value]) => {
+                        localStorage.setItem(key, value);
+                    });
+                } catch (e) { console.error("Erro no parse do sitedata"); }
+            }
+
+            // --- BACKUP (PC -> Nuvem) ---
+            const fullLocalData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('gt_')) fullLocalData[key] = localStorage.getItem(key);
+            }
+
+            await fetch(`${RENDER_URL}/save/${encodeURIComponent(label)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fullLocalData)
+            });
+
+            statusEl.textContent = "✅ Sincronização Total Ativa!";
+            statusEl.style.color = "var(--green)";
+            CloudSync.lockUI(true);
+
+            // Força atualização visual
+            GAMES.forEach(g => { refreshPity(g.id); renderHistory(g.id); });
+            updateLiveStatusUI();
+            
+        } else {
+            statusEl.textContent = "❌ ID não encontrado na planilha.";
+            statusEl.style.color = "var(--red)";
+            // Se não encontrou no servidor, removemos da memória local para evitar loops de erro
+            localStorage.removeItem('gt_sync_label');
+            CloudSync.lockUI(false);
+        }
+    } catch (err) {
+        statusEl.textContent = "⚠️ Servidor demorando a responder. Tente novamente em instantes.";
+        console.error(err);
     }
-
+}
     // ── SELECT GAME ──
     function selectGame(id) {
       if (!id) return;
@@ -3584,16 +3622,34 @@ Gerado em: ${new Date().toLocaleString()}
 
     // --- OBJETO DE SINCRONIZAÇÃO (CloudSync) ---
     const CloudSync = {
-    fetchByLabel: async function (label) {
+           fetchByLabel: async function (label) {
         if (!label) return null;
         try {
-            // Chama o link: https://gacha-tracker-priv.onrender.com/data/SYNC-YDG3J4XYT
-            const res = await fetch(`${RENDER_URL}/data/${encodeURIComponent(label.trim())}`);
+            // O encodeURIComponent protege contra espaços e caracteres especiais
+            const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
+            const res = await fetch(url);
             const data = await res.json();
-            if (data && !data.error) return data;
+            
+            if (data && !data.error) {
+                return data; 
+            }
             return null;
         } catch (e) {
-            console.error("Erro ao buscar no Render:", e);
+            console.error("Erro na busca:", e);
+            return null;
+        }
+    },
+      fetchFromRender: async function (label) {
+        try {
+            const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Se o servidor devolver erro, retorna null
+            if (data.error) return null;
+            return data;
+        } catch (e) {
+            console.error("Erro na conexão com o Render:", e);
             return null;
         }
     },
@@ -3616,31 +3672,8 @@ Gerado em: ${new Date().toLocaleString()}
           Object.entries(data).forEach(([key, value]) => localStorage.setItem(key, value));
         } catch (e) { console.error(e); }
       },
-       fetchByLabel: async function (label) {
-        if (!label) return null;
-        try {
-            // O encodeURIComponent protege contra espaços e caracteres especiais
-            const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            if (data && !data.error) {
-                return data; 
-            }
-            return null;
-        } catch (e) {
-            console.error("Erro na busca:", e);
-            return null;
-        }
-    },
-      fetchFromRender: async function (label) {
-        try {
-          const response = await fetch(RENDER_URL);
-          const allAccounts = await response.json();
-          return allAccounts.find(acc => acc.label === label);
-        } catch (e) { return null; }
-      },
-      lockUI: function (isLocked) {
+
+       lockUI: function (isLocked) {
         const fields = ['cloud-gs', 'cloud-hsr', 'cloud-zzz', 'sync-id-input'];
         fields.forEach(id => {
             const el = document.getElementById(id);
@@ -3659,35 +3692,49 @@ Gerado em: ${new Date().toLocaleString()}
       // FUNÇÃO DO BOTÃO "SINCRONIZAR E PROTEGER DADOS"
 async function syncByLabel() {
     const labelInput = document.getElementById('sync-id-input');
-    const label = labelInput.value.trim();
+    const label = labelInput.value.trim(); // Remove espaços antes de enviar
     const statusEl = document.getElementById('cloud-status-msg');
 
     if (!label) return alert("Digite o seu ID!");
 
-    statusEl.textContent = "Buscando ID no servidor...";
+    statusEl.textContent = "📡 Conectando ao servidor...";
     statusEl.style.color = "var(--gold)";
 
-    const account = await CloudSync.fetchByLabel(label);
+    try {
+        // Envia o ID limpo para o Render
+        const response = await fetch(`${RENDER_URL}/data/${encodeURIComponent(label)}`);
+        const account = await response.json();
 
-    if (account) {
-        // Preenche os campos de UID automaticamente com o que está na planilha
-        if(document.getElementById('cloud-gs')) document.getElementById('cloud-gs').value = account.uid_gs || "";
-        if(document.getElementById('cloud-hsr')) document.getElementById('cloud-hsr').value = account.uid_hsr || "";
-        if(document.getElementById('cloud-zzz')) document.getElementById('cloud-zzz').value = account.uid_zzz || "";
+        // Se o servidor retornar algo que NÃO tenha erro
+        if (account && !account.error) {
+            
+            // Preenche os campos de UID (Genshin, HSR, ZZZ)
+            if(document.getElementById('cloud-gs')) document.getElementById('cloud-gs').value = account.uid_gs || "";
+            if(document.getElementById('cloud-hsr')) document.getElementById('cloud-hsr').value = account.uid_hsr || "";
+            if(document.getElementById('cloud-zzz')) document.getElementById('cloud-zzz').value = account.uid_zzz || "";
 
-        localStorage.setItem('gt_sync_label', label);
-        statusEl.textContent = "✓ Sincronizado com sucesso!";
-        statusEl.style.color = "var(--green)";
-        CloudSync.lockUI(true);
-        
-        // Se houver um jogo ativo, atualiza a resina na hora
-        if (typeof activeGame !== 'undefined') updateLiveStatusUI();
-    } else {
-        statusEl.textContent = "❌ ID não encontrado na planilha.";
-        statusEl.style.color = "var(--red)";
+            // Salva o ID no seu navegador para uso futuro
+            localStorage.setItem('gt_sync_label', label);
+            
+            statusEl.textContent = "✅ ID Identificado e Sincronizado!";
+            statusEl.style.color = "var(--green)";
+            
+            // Bloqueia os campos para proteção
+            if (typeof CloudSync !== 'undefined') CloudSync.lockUI(true);
+            
+            // Carrega a Resina imediatamente
+            updateLiveStatusUI();
+            
+        } else {
+            statusEl.textContent = "❌ Erro: O ID '" + label + "' não existe na planilha.";
+            statusEl.style.color = "var(--red)";
+            localStorage.removeItem('gt_sync_label');
+        }
+    } catch (e) {
+        statusEl.textContent = "❌ Erro crítico de conexão com o Render.";
+        console.error(e);
     }
 }
-
     // Função de Edição da Nuvem
     function unlockCloudFields() {
       CloudSync.lockUI(false);
@@ -3747,34 +3794,38 @@ async function syncByLabel() {
     }
 
     // INICIALIZAÇÃO
-    document.addEventListener('DOMContentLoaded', () => {
-      buildPanels(); // Chame sua função que cria os painéis do tracker
-      if (localStorage.getItem('gt_sync_label')) {
-        const lbl = localStorage.getItem('gt_sync_label');
-        document.getElementById('sync-id-input').value = lbl;
+document.addEventListener('DOMContentLoaded', async () => {
+    buildPanels(); 
+    setupImages();
+
+    const salvo = localStorage.getItem('gt_sync_label');
+    if (salvo) {
+        console.log("Memória encontrada: " + salvo);
+        const input = document.getElementById('sync-id-input');
+        if (input) input.value = salvo;
+        
+        // Bloqueia a UI para indicar que está carregando
         CloudSync.lockUI(true);
-      }
-      function startAutoRefreshLoop() {
-        // Evita duplicar o timer
-        if (liveRefreshTimer) clearInterval(liveRefreshTimer);
+        
+        // Exibe um aviso visual de que o servidor está "acordando"
+        const statusEl = document.getElementById('cloud-status-msg');
+        if (statusEl) {
+            statusEl.textContent = "⏳ Acordando servidor (pode levar 30s)...";
+            statusEl.style.color = "var(--gold)";
+        }
 
-        liveRefreshTimer = setInterval(() => {
-          // Só tenta atualizar se o usuário estiver com a aba Tracker aberta
-          // e se estiver logado na nuvem
-          if (document.getElementById('page-tracker').classList.contains('active')) {
-            console.log("📡 Iniciando atualização automática programada...");
-            updateLiveStatusUI();
-          }
-        }, AUTO_REFRESH_TIME);
-      }
-
-      // Dentro do seu listener que já existe:
-      document.addEventListener('DOMContentLoaded', () => {
-        // ... seus buildPanels() etc ...
-
-        startAutoRefreshLoop(); // <--- Adicione isso aqui
-      });
-    });
+        // Tenta buscar os dados da nuvem assim que abre
+        await updateLiveStatusUI();
+        
+        if (statusEl) {
+            statusEl.textContent = "✅ Nuvem conectada.";
+            statusEl.style.color = "var(--green)";
+        }
+    }
+    
+    // Inicia o loop de atualização automática (a cada 10min)
+    startAutoRefreshLoop();
+});
     // Adicione esta função ao seu objeto CloudSync ou Scripts globais
  async function updateLiveStatusUI() {
     const syncLabel = localStorage.getItem('gt_sync_label');
