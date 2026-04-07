@@ -141,30 +141,33 @@
     }
 
     /* ── TOPNAV ── */
-    .topnav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 52px;
-      z-index: 200;
-      background: rgba(8, 11, 16, .93);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      transition: border-color .4s;
-    }
-
+.topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  z-index: 1000;
+  background: rgba(8, 11, 16, 0.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  transition: border-color .4s;
+}
+.nav-left-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
     .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 0 18px;
-      border-right: 1px solid var(--border);
-      height: 100%;
-      flex-shrink: 0;
-    }
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-right: 1px solid var(--border);
+  padding-right: 20px;
+  height: 52px;
+}
 
     .nav-logo-icon {
       width: 26px;
@@ -187,14 +190,11 @@
       color: var(--text);
     }
 
-    .nav-tabs {
-      display: flex;
-      align-items: stretch;
-      height: 100%;
-      flex: 1;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
+.nav-tabs {
+  display: flex;
+  gap: 5px;
+  height: 52px;
+}
 
     .nav-tabs::-webkit-scrollbar {
       display: none;
@@ -218,15 +218,17 @@
       user-select: none;
     }
 
-    .nav-tab:hover {
-      color: var(--text);
-      background: rgba(var(--aR), var(--aG), var(--aB), .05);
-    }
+.nav-tab:hover, .nav-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--gold);
+}
+
 
     .nav-tab.active {
       color: var(--accent2);
       border-bottom-color: var(--accent);
     }
+
 
     .nav-right {
       margin-left: auto;
@@ -253,10 +255,26 @@
       transition: background .2s, color .2s, border-color .2s;
     }
 
+
     .nav-btn:hover {
       background: rgba(var(--aR), var(--aG), var(--aB), .1);
       color: var(--accent2);
       border-color: var(--border2);
+    }
+
+    .cloud-btn {
+      background: none;
+      border: none;
+      color: var(--muted2);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .cloud-btn:hover {
+      background: rgba(var(--aR), var(--aG), var(--aB), 0.1);
+      color: var(--accent);
     }
 
     /* ── PAGES ── */
@@ -423,12 +441,14 @@
     }
 
     /* gp header */
-    .gp-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
+  .gp-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 10;
+}
 
     .gp-icon {
       width: 42px;
@@ -481,7 +501,10 @@
     .sec1 {
       margin-bottom: 14px;
     }
-
+.gp-title-container {
+    display: flex;
+    flex-direction: column;
+}
     /* pblock */
     .pblock {
       background: var(--card);
@@ -2124,6 +2147,264 @@
       color: var(--green);
       cursor: default;
     }
+
+    /* -- SUB-NAV DENTRO DO TRACKER -- */
+    .sub-nav {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 5px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .sub-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      cursor: pointer;
+      font-family: "Rajdhani";
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--muted2);
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .sub-tab.active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* -- PITY TIMELINE -- */
+    .timeline-container {
+      width: 100%;
+      overflow-x: auto;
+      padding: 40px 20px 20px;
+      background: var(--card3);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      min-height: 150px;
+    }
+
+    .timeline-wrapper {
+      display: flex;
+      align-items: center;
+      position: relative;
+      height: 2px;
+      background: var(--border2);
+    }
+
+    .timeline-node {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .timeline-line {
+      height: 2px;
+      background: var(--accent);
+      min-width: 40px;
+    }
+
+    .char-node {
+      position: absolute;
+      top: -35px;
+      right: -25px;
+      width: 50px;
+      text-align: center;
+    }
+
+    .char-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      background: #000;
+    }
+
+    .pull-count {
+      position: absolute;
+      top: -22px;
+      font-family: "Rajdhani";
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #fff;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Cores das Bordas */
+    .border-win {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .border-loss {
+      border-color: #ff5070 !important;
+      box-shadow: 0 0 10px #ff5070;
+    }
+
+    .border-guaranteed {
+      border-color: #f0c040 !important;
+      box-shadow: 0 0 10px #f0c040;
+    }
+
+    @media (max-width: 640px) {
+      .nav-tab span {
+        display: none;
+      }
+
+      .sub-tab {
+        font-size: 0.6rem;
+        padding: 6px 2px;
+      }
+    }
+
+    /* -- NOVO ESTILO DOS CARDS DE HISTÓRICO (ESTILO WIREFRAME) -- */
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .history-card {
+      background: var(--card2);
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: transform 0.2s;
+    }
+
+    .history-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .history-card-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-bottom: 8px;
+      border: 3px solid var(--accent);
+      /* Cor padrão */
+    }
+
+    .history-card-name {
+      display: block;
+      font-family: "Rajdhani";
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-card-pity {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted2);
+      font-weight: 600;
+    }
+
+    /* Bordas baseadas no 50/50 */
+    .b-win {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 10px rgba(var(--aR), var(--aG), var(--aB), 0.3);
+    }
+
+    .b-loss {
+      border-color: #ff5070 !important;
+      box-shadow: 0 0 10px rgba(255, 80, 112, 0.3);
+    }
+
+    .b-guaranteed {
+      border-color: #f0c040 !important;
+      box-shadow: 0 0 10px rgba(240, 192, 64, 0.3);
+    }
+
+    /* Ajuste das abas para 4 itens */
+    .sub-tab {
+      font-size: 0.65rem;
+    }
+    /* Garante que o conteúdo das abas seja isolado */
+.tab-content {
+    display: none; /* Escondido por padrão */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.banner-tab-container {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 280px;
+    border: 1px solid var(--border);
+    margin-top: 10px;
+}
+
+.banner-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    filter: brightness(0.4) saturate(1.2);
+    z-index: 1;
+}
+
+.banner-content-wrapper {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    height: 100%;
+}
+
+/* -- GRID DE STATS -- */
+.stats-render-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.banner-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: 10px;
+}
+
+.banner-bg-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  filter: brightness(0.3) saturate(1.3);
+  z-index: 1;
+}
+
+.banner-inner-content {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+}
   </style>
 </head>
 
@@ -2142,66 +2423,29 @@
     </div>
     <div class="nav-tabs">
       <div class="nav-tab active" id="ntab-tracker" onclick="switchPage('tracker')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        Tracker
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        TRACKER
       </div>
-      <div class="nav-tab" id="ntab-banner" onclick="switchPage('banner')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <path d="M3 9h18M9 21V9" />
-        </svg>
-        Banner Agora
-      </div>
-      <div class="nav-tab" id="ntab-stats" onclick="switchPage('stats')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="20" x2="18" y2="10" />
-          <line x1="12" y1="20" x2="12" y2="4" />
-          <line x1="6" y1="20" x2="6" y2="14" />
-        </svg>
-        Estatísticas
-      </div>
-      <!-- Procure por nav-tabs e adicione este botão no final da lista -->
       <div class="nav-tab" id="ntab-monthly" onclick="switchPage('monthly')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        Resumo Mensal
-      </div>
-      <div class="nav-tab" id="ntab-cloud" onclick="switchPage('cloud')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-        </svg>
-        Nuvem
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        RESUMO MENSAL
       </div>
     </div>
-    </div>
+  </div>
 
     <div class="nav-right">
-      <button class="nav-btn" onclick="exportData()">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        <span class="nav-btn-txt">Exportar</span>
-      </button>
-      <button class="nav-btn" onclick="document.getElementById('importFile').click()">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
-        <span class="nav-btn-txt">Importar</span>
-      </button>
-      <input type="file" id="importFile" accept=".json" onchange="importData(this)">
-    </div>
-  </nav>
+    <button class="cloud-btn" onclick="switchPage('cloud')" title="Nuvem" style="background: none; border: none; cursor: pointer; color: var(--muted2); padding: 5px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+    </button>
+    <button class="nav-btn" onclick="exportData()" title="Exportar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+    <button class="nav-btn" onclick="document.getElementById('importFile').click()" title="Importar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </button>
+    <input type="file" id="importFile" hidden onchange="importData(this)">
+  </div>
+</nav>
 
   <!-- PAGE: TRACKER -->
   <div class="page active" id="page-tracker">
@@ -2480,7 +2724,13 @@
       zzz: "https://i.ibb.co/WZs6LX2/3ba9a74bbed3272ff0a14e861e1e8418-8953409163702722405.png",
       endfield: "https://i.ibb.co/G4qpXB2x/arknightsendfield-1ecp7.png",
     };
-
+    const IMAGE_SHEETS = {
+      genshin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm5Kk3LdPMBgYh17C6PQrRX_xI1G6KG8xv2Ubh9GhfKjBzig0oaJUZZ7P5BDy0-Eh1Lm4icCiYQeYr/pub?gid=20915639&single=true&output=csv",
+      hsr: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm5Kk3LdPMBgYh17C6PQrRX_xI1G6KG8xv2Ubh9GhfKjBzig0oaJUZZ7P5BDy0-Eh1Lm4icCiYQeYr/pub?gid=1475918584&single=true&output=csv",
+      zzz: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm5Kk3LdPMBgYh17C6PQrRX_xI1G6KG8xv2Ubh9GhfKjBzig0oaJUZZ7P5BDy0-Eh1Lm4icCiYQeYr/pub?gid=1171476137&single=true&output=csv",
+      endfield: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm5Kk3LdPMBgYh17C6PQrRX_xI1G6KG8xv2Ubh9GhfKjBzig0oaJUZZ7P5BDy0-Eh1Lm4icCiYQeYr/pub?gid=562575395&single=true&output=csv"
+    };
+    let CHAR_DATABASE = {};
     // ── CONFIG ──
     const GAMES = [
       { id: "genshin", name: "Genshin Impact", short: "Genshin", max: 90, soft: 74, url: "https://paimon.moe/" },
@@ -2579,66 +2829,66 @@
       renderMonthlySummary();
     }
 
-async function performCloudSync() {
-    const labelInput = document.getElementById('sync-id-input');
-    const label = labelInput.value.trim();
-    const statusEl = document.getElementById('cloud-status-msg');
+    async function performCloudSync() {
+      const labelInput = document.getElementById('sync-id-input');
+      const label = labelInput.value.trim();
+      const statusEl = document.getElementById('cloud-status-msg');
 
-    if (!label) return alert("Digite o seu ID!");
+      if (!label) return alert("Digite o seu ID!");
 
-    // SALVA LOGO NO INÍCIO para garantir que o navegador não esqueça
-    localStorage.setItem('gt_sync_label', label);
+      // SALVA LOGO NO INÍCIO para garantir que o navegador não esqueça
+      localStorage.setItem('gt_sync_label', label);
 
-    statusEl.textContent = "📡 Conectando ao servidor Render...";
-    statusEl.style.color = "var(--gold)";
+      statusEl.textContent = "📡 Conectando ao servidor Render...";
+      statusEl.style.color = "var(--gold)";
 
-    try {
+      try {
         const account = await CloudSync.fetchFromRender(label);
 
         if (account) {
-            // --- RESTAURAÇÃO (Nuvem -> PC) ---
-            if (account.sitedata) {
-                try {
-                    const cloudBackup = JSON.parse(account.sitedata);
-                    Object.entries(cloudBackup).forEach(([key, value]) => {
-                        localStorage.setItem(key, value);
-                    });
-                } catch (e) { console.error("Erro no parse do sitedata"); }
-            }
+          // --- RESTAURAÇÃO (Nuvem -> PC) ---
+          if (account.sitedata) {
+            try {
+              const cloudBackup = JSON.parse(account.sitedata);
+              Object.entries(cloudBackup).forEach(([key, value]) => {
+                localStorage.setItem(key, value);
+              });
+            } catch (e) { console.error("Erro no parse do sitedata"); }
+          }
 
-            // --- BACKUP (PC -> Nuvem) ---
-            const fullLocalData = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('gt_')) fullLocalData[key] = localStorage.getItem(key);
-            }
+          // --- BACKUP (PC -> Nuvem) ---
+          const fullLocalData = {};
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('gt_')) fullLocalData[key] = localStorage.getItem(key);
+          }
 
-            await fetch(`${RENDER_URL}/save/${encodeURIComponent(label)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(fullLocalData)
-            });
+          await fetch(`${RENDER_URL}/save/${encodeURIComponent(label)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fullLocalData)
+          });
 
-            statusEl.textContent = "✅ Sincronização Total Ativa!";
-            statusEl.style.color = "var(--green)";
-            CloudSync.lockUI(true);
+          statusEl.textContent = "✅ Sincronização Total Ativa!";
+          statusEl.style.color = "var(--green)";
+          CloudSync.lockUI(true);
 
-            // Força atualização visual
-            GAMES.forEach(g => { refreshPity(g.id); renderHistory(g.id); });
-            updateLiveStatusUI();
-            
+          // Força atualização visual
+          GAMES.forEach(g => { refreshPity(g.id); renderHistory(g.id); });
+          updateLiveStatusUI();
+
         } else {
-            statusEl.textContent = "❌ ID não encontrado na planilha.";
-            statusEl.style.color = "var(--red)";
-            // Se não encontrou no servidor, removemos da memória local para evitar loops de erro
-            localStorage.removeItem('gt_sync_label');
-            CloudSync.lockUI(false);
+          statusEl.textContent = "❌ ID não encontrado na planilha.";
+          statusEl.style.color = "var(--red)";
+          // Se não encontrou no servidor, removemos da memória local para evitar loops de erro
+          localStorage.removeItem('gt_sync_label');
+          CloudSync.lockUI(false);
         }
-    } catch (err) {
+      } catch (err) {
         statusEl.textContent = "⚠️ Servidor demorando a responder. Tente novamente em instantes.";
         console.error(err);
+      }
     }
-}
     // ── SELECT GAME ──
     function selectGame(id) {
       if (!id) return;
@@ -2695,114 +2945,97 @@ async function performCloudSync() {
         }
 
         div.innerHTML = `
-      <div class="gp-header">
-        <div class="gp-icon">
-          <img src="${IMG[g.id]}" alt="${g.name}">
-          </div>
-        <div>
-          <div class="gp-title">${esc(g.name)}</div>
-          <div class="gp-sub" id="gpsub-${g.id}">Defina uma data para o countdown</div>
-        </div>
-      </div>
-      ${liveStatusHtml}
-      <a class="util-link" href="${g.url}" target="_blank">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Tracker externo ↗
-      </a>
-      <div class="sec2">
-        <div class="pblock" id="cdb-${g.id}">
-          <div class="pblock-title">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Próximo Update
-          </div>
-           
-          <div class="cdown">
-            <div class="tblock"><span class="tnum" id="${g.id}-d">--</span><span class="tlabel">Dias</span></div>
-            <div class="tblock"><span class="tnum" id="${g.id}-h">--</span><span class="tlabel">Hr</span></div>
-            <div class="tblock"><span class="tnum" id="${g.id}-m">--</span><span class="tlabel">Min</span></div>
-            <div class="tblock"><span class="tnum" id="${g.id}-s">--</span><span class="tlabel">Seg</span></div>
-          </div>
-          <div class="done-msg" id="done-${g.id}">✦ Update disponível! Renovando...</div>
-          <div class="status-mini" id="stxt-${g.id}">Sem data definida</div>
-          <button class="btn-small" onclick="toggleCfg('${g.id}')">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            Definir data do update
-          </button>
-          <div class="cfg-panel" id="cfg-${g.id}">
-            <div class="cfg-lbl">Data do <span>update</span></div>
-            <input type="datetime-local" class="date-inp" id="dt-${g.id}" color-scheme="dark">
-            <button class="btn-apply" onclick="applyDate('${g.id}')">✓ Salvar</button>
-            <div class="renew-note">Ao zerar renova <span>+${RENEW} dias</span></div>
-          </div>
-        </div>
-        <div class="pblock">
-          <div class="pblock-title">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Pity Atual
-          </div>
-          <div class="pity-cells">
-            <div class="pc"><span class="pc-lbl">Personagem</span><span class="pc-val sm c-p" id="pc-char-${g.id}">—</span></div>
-            <div class="pc"><span class="pc-lbl">Pity no pull</span><span class="pc-val" id="pc-pp-${g.id}">—</span></div>
-            <div class="pc"><span class="pc-lbl">50/50</span><span class="pc-val sm c-m" id="pc-ft-${g.id}">—</span></div>
-            <div class="pc"><span class="pc-lbl">Pity atual</span><span class="pc-val" id="pc-cur-${g.id}">—</span></div>
-          </div>
-          <div class="pbar-wrap">
-            <div class="pbar-hdr"><span>0</span><span id="pblbl-${g.id}">— / ${g.max}</span><span>${g.max}</span></div>
-            <div class="pbar-bg"><div class="pbar-fill" id="pb-${g.id}" style="width:0%"></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="pblock sec1">
-        <div class="pity-toggle-row">
-          <div class="pity-toggle-line"></div>
-          <button class="btn-toggle-pity" id="ptbtn-${g.id}" onclick="togglePull('${g.id}')">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Registrar Pull 5★
-            <svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="pity-toggle-line"></div>
-        </div>
-        <div class="pull-collapsible" id="pull-col-${g.id}">
-        <div class="pull-wrap">
-          <div class="pull-grid">
-            <div class="pe-grp" style="grid-column:1/-1">
-              <label class="pe-lbl">Personagem <span>*</span></label>
-              <input class="pe-inp" id="pei-char-${g.id}" type="text" placeholder="Ex: Hu Tao, Yanagi, Skirk...">
+        <div class="sub-nav">
+                <div class="sub-tab active" onclick="switchSubPage('${g.id}', 'status')"> Tracker</div>
+                <div class="sub-tab" onclick="switchSubPage('${g.id}', 'pity')"> Pity</div>
+                <div class="sub-tab" onclick="switchSubPage('${g.id}', 'banner')"> Banner</div>
+                <div class="sub-tab" onclick="switchSubPage('${g.id}', 'stats')"> Stats</div>
             </div>
-            <div class="pe-grp">
-              <label class="pe-lbl">Pity em que foi pego <span>*</span></label>
-              <input class="pe-inp" id="pei-pp-${g.id}" type="number" min="1" max="${g.max}" placeholder="1 – ${g.max}">
+                  <div class="gp-header">
+                <div class="gp-icon"><img src="${IMG[g.id]}" alt="${g.name}"></div>
+                <div class="gp-title-container">
+                    <div class="gp-title">${g.name}</div>
+                    <div class="gp-sub" id="gpsub-${g.id}">Gerenciamento de conta</div>
+                </div>
             </div>
-            <div class="pe-grp">
-              <label class="pe-lbl">Pity atual agora <span>*</span></label>
-              <input class="pe-inp" id="pei-cur-${g.id}" type="number" min="0" max="${g.max - 1}" placeholder="0 – ${g.max - 1}">
+                
+                <div id="tab-${g.id}-status" class="tab-content active">
+                ${g.id !== 'endfield' ? `
+                <div id="live-status-container-${g.id}" class="pblock">
+                    <div class="pblock-title">📡 Status em Tempo Real</div>
+                    <div class="stats-grid">
+                        <div class="sc"><span class="sc-num" id="live-resina-${g.id}">--</span><span class="sc-lbl">Resina/Energia</span></div>
+                        <div class="sc"><span class="sc-num" id="live-diaria-${g.id}">--</span><span class="sc-lbl">Diárias</span></div>
+                    </div>
+                    <button class="btn-small" onclick="triggerManualSync()">Sincronizar HoYoLAB</button>
+                </div>` : ''}
+                
+                <div class="pblock" id="cdb-${g.id}">
+                    <div class="pblock-title">Próximo Update</div>
+                    <div class="cdown">
+                        <div class="tblock"><span class="tnum" id="${g.id}-d">--</span><span class="tlabel">Dias</span></div>
+                        <div class="tblock"><span class="tnum" id="${g.id}-h">--</span><span class="tlabel">Hr</span></div>
+                        <div class="tblock"><span class="tnum" id="${g.id}-m">--</span><span class="tlabel">Min</span></div>
+                        <div class="tblock"><span class="tnum" id="${g.id}-s">--</span><span class="tlabel">Seg</span></div>
+                    </div>
+                </div>
             </div>
-            <div class="pe-grp" style="grid-column:1/-1">
-              <label class="pe-lbl">50/50 <span>*</span></label>
-              <div class="radio-row" id="rr-${g.id}">
-                <div class="ropt" data-val="W" onclick="selFifty('${g.id}','W')">W — Ganhou</div>
-                <div class="ropt" data-val="G" onclick="selFifty('${g.id}','G')">G — Garantido</div>
-                <div class="ropt" data-val="L" onclick="selFifty('${g.id}','L')">L — Perdeu</div>
-              </div>
+
+            <!-- 2. PITY & HISTÓRICO -->
+            <div id="tab-${g.id}-pity" class="tab-content">
+                <div class="pblock">
+                    <div class="pblock-title">Pity Atual</div>
+                    <div class="pity-cells">
+                        <div class="pc"><span class="pc-lbl">No pull</span><span class="pc-val" id="pc-pp-${g.id}">—</span></div>
+                        <div class="pc"><span class="pc-lbl">Atual</span><span class="pc-val" id="pc-cur-${g.id}">—</span></div>
+                    </div>
+                    <div class="pbar-bg"><div class="pbar-fill" id="pb-${g.id}"></div></div>
+                </div>
+
+                <!-- Formulário de Registro -->
+                <div class="pblock">
+                     <div class="pblock-title">Registrar Pull 5★</div>
+                     <div class="pull-wrap">
+                        <input class="pe-inp" id="pei-char-${g.id}" type="text" placeholder="Nome do Personagem">
+                        <div class="radio-row" id="rr-${g.id}" style="margin-top:10px">
+                            <div class="ropt" onclick="selFifty('${g.id}','W')">Win</div>
+                            <div class="ropt" onclick="selFifty('${g.id}','G')">Guaranteed</div>
+                            <div class="ropt" onclick="selFifty('${g.id}','L')">Loss</div>
+                        </div>
+                        <button class="btn-post" onclick="postPull('${g.id}')" style="margin-top:10px; width:100%">Salvar no Histórico</button>
+                     </div>
+                </div>
+
+                <!-- Histórico em Cards (Conforme imagem) -->
+                <div class="pblock">
+                    <div class="pblock-title">Linha do Tempo Visual</div>
+                    <div class="history-grid" id="hist-grid-${g.id}"></div>
+                </div>
             </div>
-          </div>
-          <div class="pull-btns">
-            <button class="btn-post" onclick="postPull('${g.id}')">✓ Postar no histórico</button>
-            <button class="btn-edit" onclick="editOnly('${g.id}')">✎ Só editar card</button>
-          </div>
-          <div class="pe-hint" id="peh-${g.id}"></div>
-        </div>
-        </div><!-- /pull-collapsible -->
-      </div>
-      <div class="pblock sec1">
-        <div class="pblock-title">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
-          Histórico — últimos ${MAX_HIST} pulls 5★
-        </div>
-        <div class="hist-list" id="hist-${g.id}"><div class="hist-empty">Nenhum pull registrado.</div></div>
-        </div>
+
+            <!-- 3. BANNER (SOMENTE BANNER E FUNDO) -->
+            <div id="tab-${g.id}-banner" class="tab-content">
+                <div class="banner-tab-container">
+                    <div class="banner-bg-overlay" style="background-image: url('${IMG[g.id]}')"></div>
+                    <div class="banner-content-wrapper">
+                        <div class="pblock-title" style="color: white; text-shadow: 0 2px 4px black;">📅 BANNER ATUAL</div>
+                        <div class="bchars" id="bch-${g.id}">
+                             <!-- Carregado via API Ennead ou Planilha -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. STATS -->
+            <div id="tab-${g.id}-stats" class="tab-content">
+                <div id="stats-render-zone-${g.id}" class="stats-render-container">
+                    <!-- Gerado pela função renderStatsView -->
+                </div>
+            </div>
     `;
-        wrap.appendChild(div);
+         wrap.appendChild(div);
+        refreshPity(g.id);
+        renderHistory(g.id);
       });
     }
     // Chame isso após buildPanels() no final do arquivo
@@ -2914,35 +3147,36 @@ async function performCloudSync() {
     // ── HISTORY ──
     function renderHistory(id) {
       const hist = S.get(id + "_history", []);
-      const el = document.getElementById("hist-" + id);
-      if (!el) return;
+      const container = document.getElementById("hist-grid-" + id);
+      if (!container) return;
 
-      if (!hist.length) {
-        el.innerHTML = '<div class="hist-empty">Nenhum pull registrado.</div>';
+      if (hist.length === 0) {
+        container.innerHTML = '<div class="hist-empty">Nenhum pull registrado.</div>';
         return;
       }
 
-      el.innerHTML = hist.map((h, i) => {
-        const ppC = ppCls(h.pullPity || 0);
-        const ftC = h.fifty === "W" ? "var(--green)" : h.fifty === "G" ? "var(--gold)" : "var(--red)";
+      container.innerHTML = hist.map((h, index) => {
+        // Busca a imagem na database carregada
+        const imgUrl = CHAR_DATABASE[id]?.[h.char.toLowerCase()] || "https://via.placeholder.com/150?text=Logo";
+        
+        // Define a classe da borda baseada no 50/50
+        let borderClass = "b-win";
+        if (h.fifty === "L") borderClass = "b-loss";
+        if (h.fifty === "G") borderClass = "b-guaranteed";
 
         return `
-          <div class="hist-item">
-            <span class="hist-n">#${i + 1}</span>
-            <span class="hist-name">${esc(h.char || "—")}</span>
-            <span class="hist-pp ${ppC}">Pity ${h.pullPity ?? '?'}</span>
-            <span class="hist-ft" style="color:${ftC}">${ftShort(h.fifty || "")}</span>
-            <span class="hist-date">${h.date || ""}</span>
-            
-            <button class="btn-del-hist" onclick="deleteHistoryItem('${id}', ${i})" title="Excluir Pull">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-          </div>`;
-      }).join("");
-    }
+            <div class="history-card">
+                <img src="${imgUrl}" class="history-card-img ${borderClass}" alt="${h.char}">
+                <span class="history-card-name">${h.char}</span>
+                <span class="history-card-pity">${h.pullPity} Pulls</span>
+                
+                <button class="btn-del-hist" onclick="deleteHistoryItem('${id}', ${index})" style="margin-top:5px; opacity:0.5">
+                    Excluir
+                </button>
+            </div>
+        `;
+    }).join("");
+}
 
     // ── STATS ──
     function renderStats() {
@@ -3622,37 +3856,37 @@ Gerado em: ${new Date().toLocaleString()}
 
     // --- OBJETO DE SINCRONIZAÇÃO (CloudSync) ---
     const CloudSync = {
-           fetchByLabel: async function (label) {
+      fetchByLabel: async function (label) {
         if (!label) return null;
         try {
-            // O encodeURIComponent protege contra espaços e caracteres especiais
-            const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            if (data && !data.error) {
-                return data; 
-            }
-            return null;
+          // O encodeURIComponent protege contra espaços e caracteres especiais
+          const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
+          const res = await fetch(url);
+          const data = await res.json();
+
+          if (data && !data.error) {
+            return data;
+          }
+          return null;
         } catch (e) {
-            console.error("Erro na busca:", e);
-            return null;
+          console.error("Erro na busca:", e);
+          return null;
         }
-    },
+      },
       fetchFromRender: async function (label) {
         try {
-            const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            // Se o servidor devolver erro, retorna null
-            if (data.error) return null;
-            return data;
+          const url = `${RENDER_URL}/data/${encodeURIComponent(label.trim())}`;
+          const response = await fetch(url);
+          const data = await response.json();
+
+          // Se o servidor devolver erro, retorna null
+          if (data.error) return null;
+          return data;
         } catch (e) {
-            console.error("Erro na conexão com o Render:", e);
-            return null;
+          console.error("Erro na conexão com o Render:", e);
+          return null;
         }
-    },
+      },
       generateNewId: function () {
         const newId = 'SYNC-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         document.getElementById('sync-id-input').value = newId;
@@ -3673,68 +3907,68 @@ Gerado em: ${new Date().toLocaleString()}
         } catch (e) { console.error(e); }
       },
 
-       lockUI: function (isLocked) {
+      lockUI: function (isLocked) {
         const fields = ['cloud-gs', 'cloud-hsr', 'cloud-zzz', 'sync-id-input'];
         fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.disabled = isLocked;
+          const el = document.getElementById(id);
+          if (el) el.disabled = isLocked;
         });
         const btnMain = document.getElementById('btn-cloud-main');
         const btnEdit = document.getElementById('btn-cloud-edit');
         if (btnMain) btnMain.style.display = isLocked ? 'none' : 'block';
         if (btnEdit) btnEdit.style.display = isLocked ? 'block' : 'none';
-    }
-};
+      }
+    };
 
 
     // --- FUNÇÕES DE INTERFACE GLOBAIS ---
-      // 1. Busca as credenciais e UIDs no servidor RENDER
-      // FUNÇÃO DO BOTÃO "SINCRONIZAR E PROTEGER DADOS"
-async function syncByLabel() {
-    const labelInput = document.getElementById('sync-id-input');
-    const label = labelInput.value.trim(); // Remove espaços antes de enviar
-    const statusEl = document.getElementById('cloud-status-msg');
+    // 1. Busca as credenciais e UIDs no servidor RENDER
+    // FUNÇÃO DO BOTÃO "SINCRONIZAR E PROTEGER DADOS"
+    async function syncByLabel() {
+      const labelInput = document.getElementById('sync-id-input');
+      const label = labelInput.value.trim(); // Remove espaços antes de enviar
+      const statusEl = document.getElementById('cloud-status-msg');
 
-    if (!label) return alert("Digite o seu ID!");
+      if (!label) return alert("Digite o seu ID!");
 
-    statusEl.textContent = "📡 Conectando ao servidor...";
-    statusEl.style.color = "var(--gold)";
+      statusEl.textContent = "📡 Conectando ao servidor...";
+      statusEl.style.color = "var(--gold)";
 
-    try {
+      try {
         // Envia o ID limpo para o Render
         const response = await fetch(`${RENDER_URL}/data/${encodeURIComponent(label)}`);
         const account = await response.json();
 
         // Se o servidor retornar algo que NÃO tenha erro
         if (account && !account.error) {
-            
-            // Preenche os campos de UID (Genshin, HSR, ZZZ)
-            if(document.getElementById('cloud-gs')) document.getElementById('cloud-gs').value = account.uid_gs || "";
-            if(document.getElementById('cloud-hsr')) document.getElementById('cloud-hsr').value = account.uid_hsr || "";
-            if(document.getElementById('cloud-zzz')) document.getElementById('cloud-zzz').value = account.uid_zzz || "";
 
-            // Salva o ID no seu navegador para uso futuro
-            localStorage.setItem('gt_sync_label', label);
-            
-            statusEl.textContent = "✅ ID Identificado e Sincronizado!";
-            statusEl.style.color = "var(--green)";
-            
-            // Bloqueia os campos para proteção
-            if (typeof CloudSync !== 'undefined') CloudSync.lockUI(true);
-            
-            // Carrega a Resina imediatamente
-            updateLiveStatusUI();
-            
+          // Preenche os campos de UID (Genshin, HSR, ZZZ)
+          if (document.getElementById('cloud-gs')) document.getElementById('cloud-gs').value = account.uid_gs || "";
+          if (document.getElementById('cloud-hsr')) document.getElementById('cloud-hsr').value = account.uid_hsr || "";
+          if (document.getElementById('cloud-zzz')) document.getElementById('cloud-zzz').value = account.uid_zzz || "";
+
+          // Salva o ID no seu navegador para uso futuro
+          localStorage.setItem('gt_sync_label', label);
+
+          statusEl.textContent = "✅ ID Identificado e Sincronizado!";
+          statusEl.style.color = "var(--green)";
+
+          // Bloqueia os campos para proteção
+          if (typeof CloudSync !== 'undefined') CloudSync.lockUI(true);
+
+          // Carrega a Resina imediatamente
+          updateLiveStatusUI();
+
         } else {
-            statusEl.textContent = "❌ Erro: O ID '" + label + "' não existe na planilha.";
-            statusEl.style.color = "var(--red)";
-            localStorage.removeItem('gt_sync_label');
+          statusEl.textContent = "❌ Erro: O ID '" + label + "' não existe na planilha.";
+          statusEl.style.color = "var(--red)";
+          localStorage.removeItem('gt_sync_label');
         }
-    } catch (e) {
+      } catch (e) {
         statusEl.textContent = "❌ Erro crítico de conexão com o Render.";
         console.error(e);
+      }
     }
-}
     // Função de Edição da Nuvem
     function unlockCloudFields() {
       CloudSync.lockUI(false);
@@ -3765,20 +3999,20 @@ async function syncByLabel() {
     }
 
     function updateDailyUI(id) {
-    const dailyData = S.get(id + "_daily", { lastDone: "" });
-    const container = document.getElementById(`daily-row-${id}`);
-    const btn = document.getElementById(`daily-btn-${id}`);
-    
-    // Como usamos o sistema de Live Status agora, essa função pode ser simples
-    // apenas para garantir que o selectGame não quebre.
-    if (btn) {
+      const dailyData = S.get(id + "_daily", { lastDone: "" });
+      const container = document.getElementById(`daily-row-${id}`);
+      const btn = document.getElementById(`daily-btn-${id}`);
+
+      // Como usamos o sistema de Live Status agora, essa função pode ser simples
+      // apenas para garantir que o selectGame não quebre.
+      if (btn) {
         const today = new Date().toLocaleDateString();
         if (dailyData.lastDone === today) {
-            btn.textContent = "CONCLUÍDO";
-            btn.classList.add("done");
+          btn.textContent = "CONCLUÍDO";
+          btn.classList.add("done");
         }
+      }
     }
-}
 
     function markDailyDone(id) {
       const today = getTodayKey();
@@ -3794,99 +4028,178 @@ async function syncByLabel() {
     }
 
     // INICIALIZAÇÃO
-document.addEventListener('DOMContentLoaded', async () => {
-    buildPanels(); 
-    setupImages();
+    document.addEventListener('DOMContentLoaded', async () => {
+      buildPanels();
+      setupImages();
 
-    const salvo = localStorage.getItem('gt_sync_label');
-    if (salvo) {
+      const salvo = localStorage.getItem('gt_sync_label');
+      if (salvo) {
         console.log("Memória encontrada: " + salvo);
         const input = document.getElementById('sync-id-input');
         if (input) input.value = salvo;
-        
+
         // Bloqueia a UI para indicar que está carregando
         CloudSync.lockUI(true);
-        
+
         // Exibe um aviso visual de que o servidor está "acordando"
         const statusEl = document.getElementById('cloud-status-msg');
         if (statusEl) {
-            statusEl.textContent = "⏳ Acordando servidor (pode levar 30s)...";
-            statusEl.style.color = "var(--gold)";
+          statusEl.textContent = "⏳ Acordando servidor (pode levar 30s)...";
+          statusEl.style.color = "var(--gold)";
         }
 
         // Tenta buscar os dados da nuvem assim que abre
         await updateLiveStatusUI();
-        
+
         if (statusEl) {
-            statusEl.textContent = "✅ Nuvem conectada.";
-            statusEl.style.color = "var(--green)";
+          statusEl.textContent = "✅ Nuvem conectada.";
+          statusEl.style.color = "var(--green)";
         }
-    }
-    
-    // Inicia o loop de atualização automática (a cada 10min)
-    startAutoRefreshLoop();
-});
+      }
+
+      // Inicia o loop de atualização automática (a cada 10min)
+      startAutoRefreshLoop();
+    });
     // Adicione esta função ao seu objeto CloudSync ou Scripts globais
- async function updateLiveStatusUI() {
-    const syncLabel = localStorage.getItem('gt_sync_label');
-    if (!syncLabel || !activeGame || activeGame === 'endfield') return;
+    async function updateLiveStatusUI() {
+      const syncLabel = localStorage.getItem('gt_sync_label');
+      if (!syncLabel || !activeGame || activeGame === 'endfield') return;
 
-    try {
+      try {
         const accountData = await CloudSync.fetchByLabel(syncLabel);
-        
+
         if (accountData && accountData.results) {
-            const live = JSON.parse(accountData.results);
-            const keyMap = { "genshin": "gs", "hsr": "hsr", "zzz": "zzz" };
-            const gameInfo = live[keyMap[activeGame]];
+          const live = JSON.parse(accountData.results);
+          const keyMap = { "genshin": "gs", "hsr": "hsr", "zzz": "zzz" };
+          const gameInfo = live[keyMap[activeGame]];
 
-            if (gameInfo && gameInfo !== "N/A") {
-                const resinaEl = document.getElementById(`live-resina-${activeGame}`);
-                const diariaEl = document.getElementById(`live-diaria-${activeGame}`);
-                const timeEl = document.getElementById(`live-update-time-${activeGame}`);
+          if (gameInfo && gameInfo !== "N/A") {
+            const resinaEl = document.getElementById(`live-resina-${activeGame}`);
+            const diariaEl = document.getElementById(`live-diaria-${activeGame}`);
+            const timeEl = document.getElementById(`live-update-time-${activeGame}`);
 
-                if (resinaEl) resinaEl.textContent = gameInfo.resin || gameInfo.stamina || gameInfo.energy || "--";
-                if (diariaEl) {
-                    diariaEl.textContent = gameInfo.daily || "--";
-                    const isDone = diariaEl.textContent.includes("4/4") || diariaEl.textContent.includes("500/500") || diariaEl.textContent.includes("400/400");
-                    diariaEl.style.color = isDone ? "var(--green)" : "var(--gold)";
-                }
-                if (timeEl) {
-                    const now = new Date();
-                    timeEl.textContent = `Visto às ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-                }
+            if (resinaEl) resinaEl.textContent = gameInfo.resin || gameInfo.stamina || gameInfo.energy || "--";
+            if (diariaEl) {
+              diariaEl.textContent = gameInfo.daily || "--";
+              const isDone = diariaEl.textContent.includes("4/4") || diariaEl.textContent.includes("500/500") || diariaEl.textContent.includes("400/400");
+              diariaEl.style.color = isDone ? "var(--green)" : "var(--gold)";
             }
+            if (timeEl) {
+              const now = new Date();
+              timeEl.textContent = `Visto às ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            }
+          }
         }
-    } catch (e) {
+      } catch (e) {
         console.error("Erro ao carregar Live Status:", e);
+      }
     }
-}
     // --- FUNÇÃO PARA O BOTÃO DE RELOAD (RENDER /RUN) ---
 
     async function triggerManualSync() {
-    if (!activeGame || activeGame === 'endfield') return;
-    const btn = document.getElementById(`btn-sync-live-${activeGame}`);
-    if (!btn || btn.disabled) return;
+      if (!activeGame || activeGame === 'endfield') return;
+      const btn = document.getElementById(`btn-sync-live-${activeGame}`);
+      if (!btn || btn.disabled) return;
 
-    try {
+      try {
         btn.disabled = true;
         btn.textContent = "Solicitando...";
         await fetch(`${RENDER_URL}/run`);
 
         let seconds = 60;
         const timer = setInterval(() => {
-            seconds--;
-            btn.textContent = `Aguarde (${seconds}s)`;
-            if (seconds <= 0) {
-                clearInterval(timer);
-                btn.disabled = false;
-                btn.textContent = "Sincronizar Agora";
-                updateLiveStatusUI();
-            }
+          seconds--;
+          btn.textContent = `Aguarde (${seconds}s)`;
+          if (seconds <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.textContent = "Sincronizar Agora";
+            updateLiveStatusUI();
+          }
         }, 1000);
-    } catch (e) {
+      } catch (e) {
         btn.disabled = false;
         btn.textContent = "Erro";
+      }
     }
+    // Carrega as imagens das planilhas
+    async function loadCharacterImages() {
+      for (const [game, url] of Object.entries(IMAGE_SHEETS)) {
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          const rows = text.split('\n').slice(1); // Pula cabeçalho
+          CHAR_DATABASE[game] = {};
+          rows.forEach(row => {
+            const [name, img] = row.split(',');
+            if (name) CHAR_DATABASE[game][name.trim().toLowerCase()] = img.trim();
+          });
+        } catch (e) { console.error("Erro ao carregar imagens de " + game); }
+      }
+    }
+
+    // Sub-navegação interna do jogo
+   function switchSubPage(gameId, tabId) {
+    const panel = document.getElementById(`gp-${gameId}`);
+    panel.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    panel.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById(`tab-${gameId}-${tabId}`).classList.add('active');
+
+    if (tabId === 'banner') loadBannersForGame(gameId);
+    if (tabId === 'stats') renderStatsForGame(gameId);
+}
+    // Renderizar Linha do Tempo de Pity
+    function renderPityTimeline(id) {
+      const hist = S.get(id + "_history", []);
+      const container = document.getElementById("timeline-" + id);
+      if (!container || hist.length === 0) return;
+
+      let html = '<div class="timeline-wrapper">';
+
+      // Inverter para mostrar do mais antigo para o mais novo na linha
+      const chronological = [...hist].reverse();
+
+      chronological.forEach((h, i) => {
+        const pityWidth = Math.max(h.pullPity * 4, 60); // Escala a largura pela demora
+        const borderClass = h.fifty === 'W' ? 'border-win' : (h.fifty === 'L' ? 'border-loss' : 'border-guaranteed');
+
+        // Busca imagem na nossa database carregada do Google Sheets
+        const imgUrl = CHAR_DATABASE[id]?.[h.char.toLowerCase()] || "https://via.placeholder.com/50";
+
+        html += `
+            <div class="timeline-line" style="width: ${pityWidth}px; background: var(--border2)">
+                <div class="timeline-line-fill" style="width: 100%; background: var(--accent); opacity: 0.3"></div>
+            </div>
+            <div class="timeline-node">
+                <div class="char-node">
+                    <span class="pull-count">${h.pullPity}</span>
+                    <img src="${imgUrl}" class="char-img ${borderClass}" title="${h.char}">
+                </div>
+            </div>
+        `;
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    function renderStatsForGame(id) {
+    const container = document.getElementById(`stats-render-zone-${id}`);
+    const g = GAMES.find(x => x.id === id);
+    const themeColor = GAME_THEME_COLORS[g.name] || "var(--accent)";
+    
+    container.innerHTML = `
+        ${generateSingleStatHTML(id)}
+        <div class="compare-box" style="margin-top: 20px;">
+            <span class="vs-badge">COMPARAR COM:</span>
+            <select class="compare-select" onchange="startComparisonInsideTab('${id}', this.value)">
+                <option value="">Escolha um jogo...</option>
+                ${GAMES.filter(x => x.id !== id).map(x => `<option value="${x.id}">${x.name}</option>`).join("")}
+            </select>
+        </div>
+        <div id="comparison-result-${id}"></div>
+    `;
 }
   </script>
 </body>
