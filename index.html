@@ -881,7 +881,7 @@
       text-transform: uppercase;
     }
 
-    /* TIMELINE DE PITY (CORRIGIDA) */
+    /* TIMELINE DE PITY */
     .timeline-wrapper {
       background: var(--card3);
       border: 1px solid var(--border);
@@ -894,9 +894,7 @@
     .timeline-track {
       display: flex;
       align-items: flex-end;
-      /* Alinha a base do Node com a Linha horizontal */
       padding: 30px 20px 35px 15px;
-      /* Padding bottom para dar espaço ao nome */
     }
 
     .timeline-line {
@@ -904,9 +902,7 @@
       background: var(--border2);
       position: relative;
       margin-bottom: 3.5px;
-      /* Exatamente no centro do ponto de 10px */
       z-index: 1;
-      /* Atrás da imagem e ponto */
       flex-shrink: 0;
     }
 
@@ -1226,6 +1222,18 @@
       color: rgba(255, 255, 255, .5);
     }
 
+    .bload svg {
+      animation: spin 1s linear infinite;
+      margin-bottom: 5px;
+      opacity: 0.5;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
     /* Helpers */
     .c-g {
       color: var(--green);
@@ -1472,6 +1480,10 @@
 
   <!-- SCRIPTS -->
   <script>
+    // Configurações Globais Iniciais para evitar erros
+    window.ZZZ_ICONS = {}; // Prevenção de erro caso falhe a planilha do ZZZ
+    window.charDb = {};
+
     // ── IMAGES ──
     const IMG = {
       genshin: "https://i.ibb.co/60Ls3TmQ/5d2ba4371115d26de4c574b28311aed8-576844151847376526.jpg",
@@ -1505,7 +1517,6 @@
     const fiftyState = {};
     let activeGame = null;
     let bannerLoaded = false;
-    window.charDb = {};
 
     const esc = s => String(s).replace(/[&<>"\']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const pad = n => String(n).padStart(2, "0");
@@ -2038,15 +2049,172 @@
     }
 
     // ==========================================
-    // BANNER FETCH (MOCKUP/API)
+    // BANNER FETCH (API / GOOGLE SHEETS)
     // ==========================================
     async function loadBanners(force) {
       if (bannerLoaded && !force) return;
       bannerLoaded = true;
 
+      // Altera o texto do botão de atualização enquanto carrega
       GAMES.forEach(g => {
-        const el = document.getElementById("bch-" + g.id);
-        if (el) el.innerHTML = `<div class="bload">Simulando Fetch... Banners aparecerão aqui.</div>`;
+        const btn = document.getElementById("btn-refresh-" + g.id);
+        if (btn) btn.innerHTML = "Atualizando...";
+      });
+
+      const spin = `<div class="bload"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><br>Carregando...</div>`;["genshin", "hsr", "zzz", "endfield"].forEach(g => { const el = document.getElementById("bch-" + g); if (el) el.innerHTML = spin; });
+      const cc = (c, i) => `<div class="bchar" style="animation-delay:${i * .07}s"><img src="${esc(c.icon)}" alt="${esc(c.name)}" onerror="this.style.display='none'"><div><div class="bchar-name">${esc(c.name)}</div><div class="bchar-stars">★★★★★</div><span class="bbadge">5★ · Banner Atual</span></div></div>`;
+
+      // 1. GENSHIN
+      const pGenshin = (async () => {
+        try {
+          const d = await (await fetch("https://api.ennead.cc/mihoyo/genshin/calendar")).json();
+          const seen = new Set(); const chars = [];
+          (d.banners || []).forEach(b => (b.characters || []).forEach(c => {
+            if (c.rarity === 5 && !seen.has(c.name)) { seen.add(c.name); chars.push(c); }
+          }));
+          const el = document.getElementById("bch-genshin");
+          if (el) el.innerHTML = chars.length ? chars.map(cc).join("") : '<div class="bload" style="color:var(--muted)">Sem 5★ ativo.</div>';
+        } catch {
+          const el = document.getElementById("bch-genshin"); if (el) el.innerHTML = '<div class="berr">Erro ao carregar.</div>';
+        }
+      })();
+
+      // 2. HONKAI STAR RAIL
+      const pHSR = (async () => {
+        try {
+          const d = await (await fetch("https://api.ennead.cc/mihoyo/starrail/calendar")).json();
+          const now = Math.floor(Date.now() / 1000);
+          const active = (d.banners || []).filter(b => b.start_time <= now && b.end_time >= now && (b.characters || []).some(c => c.rarity === 5));
+          const maxStart = active.length ? Math.max(...active.map(b => b.start_time)) : null;
+          const currentPhase = active.filter(b => b.start_time === maxStart);
+          const seen = new Set();
+          const chars = [];
+          currentPhase.forEach(b => (b.characters || []).forEach(c => {
+            if (c.rarity === 5 && !seen.has(c.name)) { seen.add(c.name); chars.push(c); }
+          }));
+          const el = document.getElementById("bch-hsr");
+          if (el) el.innerHTML = chars.length ? chars.map(cc).join("") : '<div class="bload" style="color:var(--muted)">Sem 5★ ativo.</div>';
+        } catch {
+          const el = document.getElementById("bch-hsr"); if (el) el.innerHTML = '<div class="berr">Erro ao carregar.</div>';
+        }
+      })();
+
+      // 3. ZENLESS ZONE ZERO
+      const pZZZ = (async () => {
+        var zCsv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTDX5lZJLb8BWTQmvzV0BR-_pK8XcyVEf_CpgY32Ml-6SffuscJiZBlWS-N5Xl1sJk-oYdpTPQccWzB/pub?output=csv";
+        var zProxies = [u => u, u => "https://corsproxy.io/?" + encodeURIComponent(u), u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u)];
+        function parseZCSV(text) {
+          function parseRow(raw) {
+            var cols = []; var cur = ""; var inQ = false;
+            for (var i = 0; i < raw.length; i++) {
+              var ch = raw[i];
+              if (ch === '"') { inQ = !inQ; }
+              else if (ch === "," && !inQ) { cols.push(cur.trim()); cur = ""; }
+              else cur += ch;
+            }
+            cols.push(cur.trim());
+            return cols.map(c => c.replace(/^"|"$/g, "").trim());
+          }
+          var agents = [];
+          var lines = text.replace(/\r/g, "").split("\n");
+          for (var i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            var row = parseRow(lines[i]);
+            var name = (row[0] || "");
+            var rarity = (row[5] || "").toUpperCase();
+            var running = (row[20] || "").toUpperCase();
+            var icon = (row[21] || "").trim();
+            if (name && rarity === "S" && running === "TRUE") agents.push({ name: name, icon: icon });
+          }
+          return agents;
+        }
+        function renderZAgent(agent, i) {
+          var name = agent.name;
+          var icon = agent.icon || window.ZZZ_ICONS[name] || "";
+          var imgHtml = icon
+            ? '<img src="' + esc(icon) + '" alt="' + esc(name) + '" onerror="this.style.display=\'none\'" style="width:46px;height:46px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,.12)">'
+            : '<div style="width:46px;height:46px;border-radius:7px;background:rgba(245,200,0,.1);border:1px solid rgba(245,200,0,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f5c800" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>';
+          return '<div class="bchar" style="animation-delay:' + (i * 0.07) + 's">' + imgHtml + '<div><div class="bchar-name">' + esc(name) + '</div><div class="bchar-stars">★★★★★</div><span class="bbadge">Agente S · Banner Atual</span></div></div>';
+        }
+        var zEl = document.getElementById("bch-zzz");
+        var zDone = false;
+        for (var zi = 0; zi < zProxies.length && !zDone; zi++) {
+          try {
+            var zResp = await fetch(zProxies[zi](zCsv), { signal: AbortSignal.timeout(9000) });
+            if (!zResp.ok) continue;
+            var zText = await zResp.text();
+            if (!zText.includes(",")) continue;
+            var zAgents = parseZCSV(zText);
+            if (zEl) zEl.innerHTML = zAgents.length ? zAgents.map((a, i) => renderZAgent(a, i)).join("") : '<div class="bload" style="color:rgba(255,255,255,.5)">Sem agente S ativo.</div>';
+            zDone = true;
+          } catch (ze) { continue; }
+        }
+        if (!zDone && zEl) zEl.innerHTML = '<div class="berr">Erro ao carregar ZZZ.<br><a href="https://zzz.rng.moe/en" target="_blank" style="color:var(--accent)">zzz.rng.moe ↗</a></div>';
+      })();
+
+      // 4. ENDFIELD
+      const pEndfield = (async () => {
+        var efCsv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR68CkOBE-Y7l-seTQz3FMLqrZvPSDo--HJ6JMiXQ09CCoyDcxXRvErWoGiiTgyFlTHYjS5AnxYEnHb/pub?output=csv";
+        var efProxies = [u => u, u => "https://corsproxy.io/?" + encodeURIComponent(u), u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u)];
+        function parseEfCSV(text) {
+          function parseRow(raw) {
+            var cols = []; var cur = ""; var inQ = false;
+            for (var i = 0; i < raw.length; i++) {
+              var ch = raw[i];
+              if (ch === '"') { inQ = !inQ; }
+              else if (ch === "," && !inQ) { cols.push(cur.trim()); cur = ""; }
+              else cur += ch;
+            }
+            cols.push(cur.trim());
+            return cols.map(c => c.replace(/^"|"$/g, "").trim());
+          }
+          var chars = [];
+          var lines = text.replace(/\r/g, "").split("\n");
+          for (var i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            var row = parseRow(lines[i]);
+            var name = row[0] || "";
+            var icon = row[1] || "";
+            var rarity = (row[2] || "").replace("*", "").trim();
+            var running = (row[3] || "").toUpperCase();
+            if (name && rarity === "6" && running === "TRUE") chars.push({ name: name, icon: icon });
+          }
+          return chars;
+        }
+        function renderEfChar(c, i) {
+          var delay = (i * 0.08) + "s";
+          var imgHtml = c.icon
+            ? '<img src="' + esc(c.icon) + '" alt="' + esc(c.name) + '" onerror="this.style.display=\'none\'" style="width:50px;height:50px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,.15)">'
+            : '<div style="width:50px;height:50px;border-radius:8px;background:rgba(48,224,138,.1);border:1px solid rgba(48,224,138,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#30e08a" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>';
+          return '<div class="bchar" style="animation-delay:' + delay + '">' + imgHtml + '<div><div class="bchar-name">' + esc(c.name) + '</div><div class="bchar-stars">★★★★★★</div><span class="bbadge">6★ · Banner Atual</span></div></div>';
+        }
+        var efEl = document.getElementById("bch-endfield");
+        var efDone = false;
+        for (var pi = 0; pi < efProxies.length && !efDone; pi++) {
+          try {
+            var efResp = await fetch(efProxies[pi](efCsv), { signal: AbortSignal.timeout(9000) });
+            if (!efResp.ok) continue;
+            var efText = await efResp.text();
+            if (!efText.includes(",")) continue;
+            var efChars = parseEfCSV(efText);
+            if (efEl) {
+              if (efChars.length) efEl.innerHTML = efChars.map(renderEfChar).join("");
+              else efEl.innerHTML = '<div class="bload" style="color:rgba(255,255,255,.5)">Nenhum personagem 6★ no banner ativo.</div>';
+            }
+            efDone = true;
+          } catch (efErr) { continue; }
+        }
+        if (!efDone && efEl) {
+          efEl.innerHTML = '<div style="padding:15px; font-size:0.75rem; color:rgba(255,255,255,0.6);">Não foi possível carregar Endfield.<br><a href="https://trackmypulls.com/en/endfield/tracker" target="_blank" style="color:var(--accent2)">→ trackmypulls.com</a></div>';
+        }
+      })();
+
+      // Restaura o texto dos botões após tudo terminar
+      Promise.allSettled([pGenshin, pHSR, pZZZ, pEndfield]).then(() => {
+        GAMES.forEach(g => {
+          const btn = document.getElementById("btn-refresh-" + g.id);
+          if (btn) btn.innerHTML = "Atualizar Dados de Banner Live Agora";
+        });
       });
     }
 
