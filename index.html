@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Gacha Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
@@ -266,6 +266,7 @@
       text-transform: uppercase;
       cursor: pointer;
       transition: background .2s, color .2s, border-color .2s;
+      white-space: nowrap;
     }
 
     .nav-btn:hover {
@@ -881,7 +882,7 @@
       text-transform: uppercase;
     }
 
-    /* TIMELINE DE PITY */
+    /* TIMELINE DE PITY (CORRIGIDA) */
     .timeline-wrapper {
       background: var(--card3);
       border: 1px solid var(--border);
@@ -1289,6 +1290,140 @@
       color: #fff;
       box-shadow: 0 0 15px rgba(var(--aR), var(--aG), var(--aB), 0.4);
     }
+
+    .comp-grid {
+      display: grid;
+      grid-template-columns: 1fr 40px 1fr;
+      gap: 10px;
+    }
+
+    /* ── RESPONSIVIDADE (MOBILE FIX) ── */
+    @media (max-width: 800px) {
+      .tracker-layout {
+        flex-direction: column;
+      }
+
+      .cards-rail {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        position: sticky;
+        top: 52px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .game-card {
+        min-width: 120px;
+        flex-shrink: 0;
+      }
+
+      .game-card img {
+        height: 70px;
+      }
+
+      #main-panel-bg,
+      #main-panel-bg-overlay {
+        left: 0 !important;
+      }
+
+      .comp-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .comp-grid .vs-text {
+        margin: 10px 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-logo-text {
+        display: none;
+      }
+
+      .nav-btn span {
+        display: none;
+      }
+
+      .nav-btn {
+        padding: 6px;
+      }
+
+      .main-panel {
+        padding: 15px 12px 30px;
+      }
+
+      .sec2 {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .pity-cells {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      /* Permite a navbar interna ser rolada pelo dedo */
+      .game-sub-nav {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+      }
+
+      .game-sub-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sub-tab-btn {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        padding: 8px 12px;
+      }
+
+      .pull-wrap>div:first-child {
+        grid-template-columns: 1fr !important;
+      }
+
+      .radio-row {
+        flex-wrap: wrap;
+      }
+
+      #cloud-form-container>div {
+        grid-template-columns: 1fr !important;
+      }
+
+      .gp-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .bcard-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bcard-link {
+        align-self: flex-start;
+        margin-top: 5px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-tab {
+        font-size: 0.65rem;
+        padding: 0 10px;
+      }
+    }
   </style>
 </head>
 
@@ -1395,8 +1530,8 @@
             </svg>
           </div>
           <div class="welcome-title">Selecione um jogo</div>
-          <div class="welcome-sub" style="color:var(--muted); font-size:0.75rem;">Clique em um card à esquerda para
-            gerenciar sua conta e histórico.</div>
+          <div class="welcome-sub" style="color:var(--muted); font-size:0.75rem;">Clique em um card à esquerda (ou topo)
+            para gerenciar sua conta e histórico.</div>
         </div>
 
         <!-- Onde os painéis dos jogos serão injetados pelo JS -->
@@ -1480,8 +1615,8 @@
 
   <!-- SCRIPTS -->
   <script>
-    // Configurações Globais Iniciais para evitar erros
-    window.ZZZ_ICONS = {}; // Prevenção de erro caso falhe a planilha do ZZZ
+    // Configurações Globais
+    window.ZZZ_ICONS = {};
     window.charDb = {};
 
     // ── IMAGES ──
@@ -1712,7 +1847,7 @@
                   </div>
               </div>
 
-              <!-- TIMELINE GRÁFICA -->
+              <!-- TIMELINE GRÁFICA CORRIGIDA -->
               <div class="pblock-title" style="margin-top:10px;">Linha do Tempo (Distância = Pity)</div>
               <div class="timeline-wrapper" id="timeline-${g.id}"></div>
 
@@ -1988,9 +2123,9 @@
       const res = document.getElementById("comparison-result-" + baseId);
       if (!targetId) { res.innerHTML = ""; return; }
       res.innerHTML = `
-            <div style="display: grid; grid-template-columns: 1fr 40px 1fr; gap: 10px;">
+            <div class="comp-grid">
                 <div>${generateSingleStatHTML(baseId)}</div>
-                <div style="display:flex; align-items:center; justify-content:center; font-family:Rajdhani; font-weight:700; font-size:1.5rem; color:var(--accent);">VS</div>
+                <div class="vs-text" style="display:flex; align-items:center; justify-content:center; font-family:Rajdhani; font-weight:700; font-size:1.5rem; color:var(--accent);">VS</div>
                 <div>${generateSingleStatHTML(targetId)}</div>
             </div>
         `;
@@ -2055,7 +2190,6 @@
       if (bannerLoaded && !force) return;
       bannerLoaded = true;
 
-      // Altera o texto do botão de atualização enquanto carrega
       GAMES.forEach(g => {
         const btn = document.getElementById("btn-refresh-" + g.id);
         if (btn) btn.innerHTML = "Atualizando...";
@@ -2064,7 +2198,6 @@
       const spin = `<div class="bload"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><br>Carregando...</div>`;["genshin", "hsr", "zzz", "endfield"].forEach(g => { const el = document.getElementById("bch-" + g); if (el) el.innerHTML = spin; });
       const cc = (c, i) => `<div class="bchar" style="animation-delay:${i * .07}s"><img src="${esc(c.icon)}" alt="${esc(c.name)}" onerror="this.style.display='none'"><div><div class="bchar-name">${esc(c.name)}</div><div class="bchar-stars">★★★★★</div><span class="bbadge">5★ · Banner Atual</span></div></div>`;
 
-      // 1. GENSHIN
       const pGenshin = (async () => {
         try {
           const d = await (await fetch("https://api.ennead.cc/mihoyo/genshin/calendar")).json();
@@ -2079,7 +2212,6 @@
         }
       })();
 
-      // 2. HONKAI STAR RAIL
       const pHSR = (async () => {
         try {
           const d = await (await fetch("https://api.ennead.cc/mihoyo/starrail/calendar")).json();
@@ -2099,7 +2231,6 @@
         }
       })();
 
-      // 3. ZENLESS ZONE ZERO
       const pZZZ = (async () => {
         var zCsv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTDX5lZJLb8BWTQmvzV0BR-_pK8XcyVEf_CpgY32Ml-6SffuscJiZBlWS-N5Xl1sJk-oYdpTPQccWzB/pub?output=csv";
         var zProxies = [u => u, u => "https://corsproxy.io/?" + encodeURIComponent(u), u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u)];
@@ -2152,7 +2283,6 @@
         if (!zDone && zEl) zEl.innerHTML = '<div class="berr">Erro ao carregar ZZZ.<br><a href="https://zzz.rng.moe/en" target="_blank" style="color:var(--accent)">zzz.rng.moe ↗</a></div>';
       })();
 
-      // 4. ENDFIELD
       const pEndfield = (async () => {
         var efCsv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR68CkOBE-Y7l-seTQz3FMLqrZvPSDo--HJ6JMiXQ09CCoyDcxXRvErWoGiiTgyFlTHYjS5AnxYEnHb/pub?output=csv";
         var efProxies = [u => u, u => "https://corsproxy.io/?" + encodeURIComponent(u), u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u)];
@@ -2209,7 +2339,6 @@
         }
       })();
 
-      // Restaura o texto dos botões após tudo terminar
       Promise.allSettled([pGenshin, pHSR, pZZZ, pEndfield]).then(() => {
         GAMES.forEach(g => {
           const btn = document.getElementById("btn-refresh-" + g.id);
