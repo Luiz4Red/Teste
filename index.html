@@ -208,36 +208,14 @@
     .btn-edit { flex: 1; background: transparent; border: 1px solid var(--border2); border-radius: 7px; color: var(--muted2); font-family: "Rajdhani"; font-weight: 600; padding: 10px; cursor: pointer; text-transform: uppercase; }
 
     /* TIMELINE DE PITY */
-    .timeline-wrapper { 
-        background: var(--card3); border: 1px solid var(--border); 
-        border-radius: 12px; padding: 15px; overflow-x: auto; margin-bottom: 14px; 
-    }
-    .timeline-track { 
-        display: flex; align-items: flex-end; padding: 30px 20px 35px 15px; 
-    }
-    .timeline-line { 
-        height: 3px; background: var(--border2); position: relative; 
-        margin-bottom: 3.5px; z-index: 1; flex-shrink: 0; 
-    }
-    .timeline-node { 
-        display: flex; flex-direction: column; align-items: center; 
-        position: relative; z-index: 5; flex-shrink: 0; width: 44px;
-    }
-    .timeline-pity { 
-        font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 0.95rem; 
-        margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
-    }
-    .timeline-img { 
-        width: 44px; height: 44px; border-radius: 8px; object-fit: cover; 
-        border: 2px solid; background: var(--card2); box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-        margin-bottom: 6px; position: relative; z-index: 10;
-    }
+    .timeline-wrapper { background: var(--card3); border: 1px solid var(--border); border-radius: 12px; padding: 15px; overflow-x: auto; margin-bottom: 14px; }
+    .timeline-track { display: flex; align-items: flex-end; padding: 30px 20px 35px 15px; }
+    .timeline-line { height: 3px; background: var(--border2); position: relative; margin-bottom: 3.5px; z-index: 1; flex-shrink: 0; }
+    .timeline-node { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 5; flex-shrink: 0; width: 44px; }
+    .timeline-pity { font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .timeline-img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 2px solid; background: var(--card2); box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 6px; position: relative; z-index: 10; }
     .timeline-point { width: 10px; height: 10px; border-radius: 50%; z-index: 5; }
-    .timeline-name { 
-        position: absolute; top: 100%; margin-top: 6px; 
-        font-size: 0.6rem; color: var(--muted2); white-space: nowrap; 
-        font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; 
-    }
+    .timeline-name { position: absolute; top: 100%; margin-top: 6px; font-size: 0.6rem; color: var(--muted2); white-space: nowrap; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     
     /* Colors 50/50 */
     .tl-W { color: var(--accent); border-color: var(--accent); } .tl-bg-W { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
@@ -262,7 +240,7 @@
     .sc-num { font-family: "Rajdhani"; font-weight: 700; font-size: 1.55rem; line-height: 1; color: var(--accent2); display: block; }
     .sc-lbl { font-size: .54rem; text-transform: uppercase; color: var(--muted2); margin-top: 4px; display: block; }
 
-    /* Banners styling for the Game Tab */
+    /* Banners styling */
     .bcard { position: relative; border-radius: 16px; overflow: hidden; min-height: 260px; border: 1px solid var(--border); margin-top: 15px;}
     .bcard-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(.55) saturate(1.2); }
     .bcard-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .15) 0%, rgba(0, 0, 0, .65) 60%, rgba(0, 0, 0, .85) 100%); }
@@ -302,7 +280,6 @@
       .game-card { min-width: 120px; flex-shrink: 0; }
       .game-card img { height: 70px; }
       #main-panel-bg, #main-panel-bg-overlay { left: 0 !important; }
-      
       .comp-grid { grid-template-columns: 1fr !important; }
       .comp-grid .vs-text { margin: 10px 0; }
     }
@@ -361,12 +338,10 @@
     </div>
 
     <div class="nav-right">
-      <!-- Ícone de Nuvem -->
       <button class="cloud-icon-btn" onclick="switchPage('cloud')" title="Sincronização em Nuvem">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
       </button>
 
-      <!-- Import / Export -->
       <button class="nav-btn" onclick="exportData()">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
         <span>Exportar</span>
@@ -416,9 +391,7 @@
           <div class="welcome-sub" style="color:var(--muted); font-size:0.75rem;">Clique em um card à esquerda (ou topo) para gerenciar sua conta e histórico.</div>
         </div>
 
-        <!-- Onde os painéis dos jogos serão injetados pelo JS -->
         <div id="panels-wrap"></div>
-
       </div>
     </div>
   </div>
@@ -532,19 +505,17 @@
     const ftShort = v => v === "W" ? "W" : v === "G" ? "G" : "L";
 
     // ==========================================
-    // 1. FETCH GOOGLE SHEETS (CSV) PARA TIMELINE
+    // FETCH GOOGLE SHEETS (CSV) PARA TIMELINE
     // ==========================================
     async function fetchCharCSV() {
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm5Kk3LdPMBgYh17C6PQrRX_xI1G6KG8xv2Ubh9GhfKjBzig0oaJUZZ7P5BDy0-Eh1Lm4icCiYQeYr/pub?output=csv";
         const proxies =[ u => u, u => "https://corsproxy.io/?" + encodeURIComponent(u), u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u) ];
-        
         for(let getUrl of proxies) {
             try {
                 const res = await fetch(getUrl(csvUrl));
                 if(!res.ok) continue;
                 const text = await res.text();
                 const lines = text.split('\n');
-                
                 for(let i = 1; i < lines.length; i++) {
                     const row = lines[i];
                     if(!row) continue;
@@ -568,7 +539,7 @@
     }
 
     // ==========================================
-    // 2. CONSTRUÇÃO DA INTERFACE DO TRACKER
+    // CONSTRUÇÃO DA INTERFACE DO TRACKER
     // ==========================================
     function buildPanels() {
       const wrap = document.getElementById("panels-wrap");
@@ -717,14 +688,11 @@
                   </div>
               </div>
 
-              <!-- TIMELINE GRÁFICA CORRIGIDA -->
               <div class="pblock-title" style="margin-top:10px;">Linha do Tempo (Distância = Pity)</div>
               <div class="timeline-wrapper" id="timeline-${g.id}"></div>
 
-              <!-- LISTA HISTÓRICO CLASSICA -->
               <div class="pblock-title" style="margin-top:15px;">Histórico (Últimos ${MAX_HIST})</div>
               <div class="hist-list" id="hist-${g.id}"></div>
-
           </div>
 
           <!-- 4. TAB: ESTATÍSTICAS E COMPARAÇÃO -->
@@ -779,10 +747,8 @@
     function switchGameTab(gameId, tabId, btn) {
         document.querySelectorAll(`#gp-${gameId} .gtab-content`).forEach(t => t.classList.remove('active'));
         btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        
         document.getElementById(`gtab-${gameId}-${tabId}`).classList.add('active');
         btn.classList.add('active');
-
         if (tabId === 'stats') renderGameStatsView(gameId);
     }
 
@@ -859,7 +825,7 @@
       S.set(id + "_history", hist);
       
       refreshPity(id); renderHistory(id); renderTimeline(id);
-      autoSaveToCloud(); // <-- Backup Silencioso para Render
+      autoSaveToCloud(); 
       
       hint.textContent = "Salvo com sucesso!"; hint.style.color="var(--green)";
       setTimeout(()=> hint.textContent = "", 3000);
@@ -874,7 +840,7 @@
       
       S.set(id + "_pity", { char, pullPity: pp, curPity: cur, fifty });
       refreshPity(id);
-      autoSaveToCloud(); // <-- Backup Silencioso
+      autoSaveToCloud(); 
     }
 
     function renderHistory(id) {
@@ -912,7 +878,7 @@
       hist.splice(index, 1);
       S.set(id + "_history", hist);
       refreshPity(id); renderHistory(id); renderTimeline(id); prefillForm(id);
-      autoSaveToCloud(); // <-- Backup Silencioso
+      autoSaveToCloud(); 
     }
 
     function renderTimeline(id) {
@@ -926,11 +892,10 @@
         }
 
         const chron = [...hist].reverse();
-        
         let html = `<div class="timeline-track">`;
         
         chron.forEach(h => {
-            const px = (h.pullPity || 0) * 3; // 1 pity = 3px linha
+            const px = (h.pullPity || 0) * 3;
             const img = window.charDb[(h.char||"").toLowerCase()] || 'https://via.placeholder.com/44?text=?';
             const colorCls = h.fifty ? `tl-${h.fifty}` : 'tl-W';
             const bgCls = h.fifty ? `tl-bg-${h.fifty}` : 'tl-bg-W';
@@ -1237,7 +1202,7 @@
         const hist = S.get(g.id + "_history",[]);
         let gameWins = 0, gameLosses = 0;
         hist.forEach(h => {
-          const [day, month, year] = h.date.split("/");
+          const[day, month, year] = h.date.split("/");
           if (parseInt(month) === m && parseInt(year) === y) {
             total5++;
             pities.push(h.pullPity);
@@ -1335,65 +1300,86 @@ Gerado em: ${new Date().toLocaleString()}`.trim();
       }
     };
 
-    async function autoSaveToCloud() {
-      const label = localStorage.getItem('gt_sync_label');
-      if(!label) return;
-      const fullLocalData = {};
+    async function autoSaveToCloud(customLabel = null) {
+      const label = customLabel || localStorage.getItem('gt_sync_label');
+      if (!label) return;
+
+      const siteDataObj = {};
       for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key.startsWith('gt_') && key !== 'gt_sync_label') fullLocalData[key] = localStorage.getItem(key);
+          if (key.startsWith('gt_') && key !== 'gt_sync_label') {
+              siteDataObj[key] = localStorage.getItem(key);
+          }
       }
+
+      const payload = {
+          ltuid_v2: document.getElementById('cloud-ltuid') ? document.getElementById('cloud-ltuid').value : "",
+          ltoken_v2: document.getElementById('cloud-ltoken') ? document.getElementById('cloud-ltoken').value : "",
+          uid_gs: document.getElementById('cloud-gs') ? document.getElementById('cloud-gs').value : "",
+          uid_hsr: document.getElementById('cloud-hsr') ? document.getElementById('cloud-hsr').value : "",
+          uid_zzz: document.getElementById('cloud-zzz') ? document.getElementById('cloud-zzz').value : "",
+          siteData: JSON.stringify(siteDataObj)
+      };
+
       try {
           await fetch(`${RENDER_URL}/save/${encodeURIComponent(label)}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(fullLocalData)
+              body: JSON.stringify(payload)
           });
-      } catch(e) { console.error("Erro no auto-save", e); }
+      } catch (e) {
+          console.error("Erro no auto-save", e);
+      }
     }
 
     async function performCloudSync() {
-      const val = document.getElementById('sync-id-input').value.trim();
+      const label = document.getElementById('sync-id-input').value.trim();
+      if (!label) return alert("Digite o ID de sincronização.");
+
       const statusEl = document.getElementById('cloud-status-msg');
-      if(!val) return alert("Digite o ID de sincronização.");
-      
-      localStorage.setItem('gt_sync_label', val);
-      statusEl.textContent = "📡 Conectando ao servidor...";
+      statusEl.textContent = "📡 Sincronizando com o servidor...";
       statusEl.style.color = "var(--gold)";
 
       try {
-        const account = await CloudSync.fetchFromRender(val);
+          // 1. Tenta buscar dados existentes
+          const account = await CloudSync.fetchFromRender(label);
 
-        if (account && account.sitedata) {
-            try {
-                const cloudBackup = JSON.parse(account.sitedata);
-                Object.entries(cloudBackup).forEach(([key, value]) => {
-                    localStorage.setItem(key, value);
-                });
-            } catch (e) { console.error("Erro no parse do sitedata", e); }
-        }
+          if (account && account.siteData) {
+              // Restaurar da Nuvem -> PC
+              try {
+                  const cloudData = JSON.parse(account.siteData);
+                  Object.entries(cloudData).forEach(([k, v]) => localStorage.setItem(k, v));
+                  
+                  if(document.getElementById('cloud-ltuid')) document.getElementById('cloud-ltuid').value = account.ltuid_v2 || "";
+                  if(document.getElementById('cloud-ltoken')) document.getElementById('cloud-ltoken').value = account.ltoken_v2 || "";
+                  if(document.getElementById('cloud-gs')) document.getElementById('cloud-gs').value = account.uid_gs || "";
+                  if(document.getElementById('cloud-hsr')) document.getElementById('cloud-hsr').value = account.uid_hsr || "";
+                  if(document.getElementById('cloud-zzz')) document.getElementById('cloud-zzz').value = account.uid_zzz || "";
+              } catch (e) { console.error("Erro no parse do siteData", e); }
+          }
 
-        // Salva os dados atuais do navegador lá na nuvem forçadamente
-        await autoSaveToCloud();
+          // 2. Enviar dados atuais (PC -> Nuvem) garante criar se for novo ID
+          await autoSaveToCloud(label);
 
-        statusEl.textContent = "✅ Sincronização Ativa!";
-        statusEl.style.color = "var(--green)";
-        CloudSync.lockUI(true);
+          // 3. Sucesso
+          localStorage.setItem('gt_sync_label', label);
+          statusEl.textContent = "✅ Sincronizado e Protegido na Nuvem!";
+          statusEl.style.color = "var(--green)";
+          CloudSync.lockUI(true);
 
-        GAMES.forEach(g => {
-            refreshPity(g.id);
-            renderHistory(g.id);
-            renderTimeline(g.id);
-        });
-        
-        if (activeGame) {
-            prefillForm(activeGame);
-            updateLiveStatusUI();
-        }
+          GAMES.forEach(g => {
+              refreshPity(g.id);
+              renderHistory(g.id);
+              renderTimeline(g.id);
+          });
+          if (activeGame) {
+              prefillForm(activeGame);
+              updateLiveStatusUI();
+          }
 
-      } catch(err) {
-        statusEl.textContent = "⚠️ Servidor demorando a responder. Tente novamente.";
-        statusEl.style.color = "var(--red)";
+      } catch (err) {
+          statusEl.textContent = "⚠️ Erro de conexão com o servidor.";
+          statusEl.style.color = "var(--red)";
       }
     }
 
@@ -1415,9 +1401,10 @@ Gerado em: ${new Date().toLocaleString()}`.trim();
             const accountData = await CloudSync.fetchFromRender(syncLabel);
             
             if (accountData && accountData.results) {
-                const live = JSON.parse(accountData.results);
+                const live = typeof accountData.results === 'string' ? JSON.parse(accountData.results) : accountData.results;
                 const keyMap = { "genshin": "gs", "hsr": "hsr", "zzz": "zzz" };
-                const gameInfo = live[keyMap[activeGame]];
+                const gameKey = keyMap[activeGame];
+                const gameInfo = live[gameKey];
 
                 if (gameInfo && gameInfo !== "N/A") {
                     if (resinaEl) resinaEl.textContent = gameInfo.resin || gameInfo.stamina || gameInfo.energy || "--";
@@ -1439,7 +1426,7 @@ Gerado em: ${new Date().toLocaleString()}`.trim();
         
         if (resinaEl) resinaEl.textContent = "--";
         if (diariaEl) { diariaEl.textContent = "--"; diariaEl.style.color = "var(--muted2)"; }
-        if (timeEl) timeEl.textContent = "Conta nova/sem cookies vinculados";
+        if (timeEl) timeEl.textContent = "Aguardando sincronização da conta...";
     }
 
     async function triggerManualSync() {
@@ -1530,6 +1517,17 @@ Gerado em: ${new Date().toLocaleString()}`.trim();
           CloudSync.lockUI(true);
           document.getElementById('cloud-status-msg').textContent = "✅ Nuvem conectada.";
           document.getElementById('cloud-status-msg').style.color = "var(--green)";
+          
+          // Preencher form se possivel para auto-saves
+          CloudSync.fetchFromRender(salvo).then(account => {
+              if(account) {
+                  if(document.getElementById('cloud-ltuid')) document.getElementById('cloud-ltuid').value = account.ltuid_v2 || "";
+                  if(document.getElementById('cloud-ltoken')) document.getElementById('cloud-ltoken').value = account.ltoken_v2 || "";
+                  if(document.getElementById('cloud-gs')) document.getElementById('cloud-gs').value = account.uid_gs || "";
+                  if(document.getElementById('cloud-hsr')) document.getElementById('cloud-hsr').value = account.uid_hsr || "";
+                  if(document.getElementById('cloud-zzz')) document.getElementById('cloud-zzz').value = account.uid_zzz || "";
+              }
+          });
       }
     });
 
